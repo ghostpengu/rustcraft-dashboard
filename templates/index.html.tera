@@ -92,8 +92,20 @@
     }
 </style>
 <script>
-    
-    fetch('/read')
+    function getCookie(name) {
+        const cookieName = name + "="; // the name of the cookie followed by "="
+        const decodedCookie = decodeURIComponent(document.cookie); // decode the cookie string
+        const cookieArray = decodedCookie.split(';'); // split the string into an array of cookies
+        for(let i = 0; i < cookieArray.length; i++) { // loop through each cookie
+            let cookie = cookieArray[i].trim(); // remove leading and trailing whitespaces
+            if (cookie.indexOf(cookieName) === 0) { // if this is the cookie we're looking for
+                return cookie.substring(cookieName.length, cookie.length); // return its value
+            }
+        }
+        return ""; // return empty string if cookie not found
+    }
+    const token  = getCookie("token");
+    fetch('/read/' + token)
             .then(response => {
                 // Check if the request was successful (status code 200)
                 if (!response.ok) {
@@ -116,11 +128,11 @@
     send.addEventListener("click", function() {
         // This function will be executed when the button is clicked
         if(document.getElementById("command").value == "exit"){
-            fetch('/exit');
+            fetch('/exit/' + token);
         }
         else{   
-            fetch("/c/" + document.getElementById("command").value);
-            fetch('/read')
+            fetch("/c/" + document.getElementById("command").value +"/" + token);
+            fetch('/read/' + token)
             .then(response => {
                 // Check if the request was successful (status code 200)
                 if (!response.ok) {
@@ -145,14 +157,14 @@
     var init = document.getElementById("init");
     init.addEventListener("click", function() {
         // This function will be executed when the button is clicked
-       fetch("init");
+       fetch("init/"+ token);
     });
     var button = document.getElementById("read");
 
     // Add a click event listener to the button
     button.addEventListener("click", function() {
         // This function will be executed when the button is clicked
-        fetch('/read')
+        fetch('/read/' + token)
             .then(response => {
                 // Check if the request was successful (status code 200)
                 if (!response.ok) {
@@ -176,16 +188,20 @@
     var start = document.getElementById("start");
     start.addEventListener("click", function() {
         // This function will be executed when the button is clicked
-        fetch('/start');
+        fetch('/start/' + token);
         
     });
 
     var exit = document.getElementById("exit");
     exit.addEventListener("click", function() {
         // This function will be executed when the button is clicked
-        fetch('/exit');
+        fetch('/exit/'+ token);
        
     });
+
+
+
+
 </script>
 </html>
 

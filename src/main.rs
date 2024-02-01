@@ -10,12 +10,12 @@ struct Instance{
 
 impl Instance {
 
-    fn start()
+    fn start(token:&String)
     {
         let mut out = Command::new("tmux")
             .arg("has-session")
             .arg("-t")
-            .arg("test")
+            .arg(&token)
             .output().unwrap();
         let stdout_str = String::from_utf8_lossy(&out.stdout).contains("test");
         if stdout_str == false{
@@ -23,19 +23,19 @@ impl Instance {
             .arg("new-session")
             .arg("-d")
             .arg("-s")
-            .arg("test")
+            .arg(&token)
             .spawn().unwrap(); 
         }
        
         
     }
-    fn send_command(command:String)
+    fn send_command(command:String,token:&String)
     {
        
         Command::new("tmux")
             .arg("send-keys")
             .arg("-t")
-            .arg("test")
+            .arg(&token)
             .arg(command)
             .arg("C-m")
             .spawn().unwrap(); 
@@ -43,11 +43,11 @@ impl Instance {
         
         
     }
-    fn destroy_instance(){
+    fn destroy_instance(token:&String){
         Command::new("tmux")
         .arg("kill-session")
         .arg("-t")
-        .arg("test")
+        .arg(&token)
 
         .spawn().unwrap(); 
         
@@ -55,12 +55,12 @@ impl Instance {
             RUNNING = false
         }
     }
-    fn read_terminal() -> String{
+    fn read_terminal(token:&String) -> String{
         let out = Command::new("tmux")
         .arg("capture-pane")
         .arg("-p")
         .arg("-t")
-        .arg("test")
+        .arg(token)
 
         .output().unwrap(); 
         let stdout_str = String::from_utf8_lossy(&out.stdout);
@@ -128,9 +128,9 @@ fn regipage() -> Template {
 }
 
 
-#[get("/c/<cmd>")]
-fn sendcommand(cmd:String){
-    Instance::send_command(cmd);
+#[get("/c/<cmd>/<token>")]
+fn sendcommand(cmd:String,token:String){
+    Instance::send_command(cmd,&token);
     
 }
 
@@ -150,17 +150,17 @@ fn createuser(user:String,pass:String) -> String {
     
     Instance::writedata(&u);
    
-    format!("{:?}",&u)
+    format!("{}",&u.token)
 }
 
-#[get("/init")]
-fn createinstance() -> &'static str {
-    Instance::start();
+#[get("/init/<token>")]
+fn createinstance(token:String) -> &'static str {
+    Instance::start(&token);
     println!("started instance");
     "Started!!!!"
 }
-#[get("/start")]
-fn startinstance() -> String {
+#[get("/start/<token>")]
+fn startinstance(token:String) -> String {
     if unsafe {RUNNING}{
 
     }
@@ -171,32 +171,32 @@ fn startinstance() -> String {
             token:"WOW".to_string(),
         }; 
         //Instance::writedata(new_user);
-        Instance::send_command("cd ~/minecraft-dashboard/target/debug/server".to_string());
+        Instance::send_command("cd ~/minecraft-dashboard/target/debug/server".to_string(),&token);
         thread::sleep(Duration::from_micros(100));
-        Instance::send_command("./start.sh".to_string());  
+        Instance::send_command("./start.sh".to_string(),&token);  
         unsafe{
             RUNNING = true
         }
     }
    
-    let out = Instance::read_terminal();
+    let out = Instance::read_terminal(&token);
     out
 }
-#[get("/read")]
-fn readinstance() -> String {
+#[get("/read/<token>")]
+fn readinstance(token:String) -> String {
     Instance::dataread();
     
-    let out = Instance::read_terminal();
+    let out = Instance::read_terminal(&token);
     println!("{}",out);
     out
 }
 
 
-#[get("/exit")]
-fn exitinstance() -> String {
-    let out = Instance::read_terminal();
+#[get("/exit/<token>")]
+fn exitinstance(token:String) -> String {
+    let out = Instance::read_terminal(&token);
     println!("{}",out);
-    Instance::destroy_instance();
+    Instance::destroy_instance(&token);
     out
 }
 #[launch]
