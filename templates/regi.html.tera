@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <input id="username" type="text">
+    <input id="password" type="text">
+    <button id="s">submit</button>
+</body>
+<script>
+
+    var send = document.getElementById("s");
+    send.addEventListener("click", function() {
+        // This function will be executed when the button is clicked
+        
+       
+            fetch("/createuser/" + document.getElementById("username").value+"/" + document.getElementById("password").value );
+           
+      
+       
+    });
+</script>
+</html>
