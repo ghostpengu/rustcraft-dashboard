@@ -1,0 +1,191 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="output"></div>
+    <div id="buttons-container">
+        <button id="init">Init</button>
+        <button id="start">Start</button>
+        <button id="read">Read</button>
+        <button id="exit">Exit</button>
+        <input id="command" type="text">
+        <button id="sendc">Send</button>
+    </div>
+    
+   
+   
+ 
+
+</body>
+<style>
+    body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+
+        #buttons-container {
+            display: flex;
+            flex-direction:row;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 10px;
+            margin: 5px;
+            font-size: 14px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #command {
+            padding: 8px;
+            margin: 5px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        #sendc {
+            padding: 10px;
+            font-size: 14px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #sendc:hover {
+            background-color: #2980b9;
+        }
+
+        #output {
+            padding: 10px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            min-width: 400px;
+        }
+    #output {
+        white-space: pre;
+        font-family: monospace;
+    }
+</style>
+<script>
+    
+    fetch('/read')
+            .then(response => {
+                // Check if the request was successful (status code 200)
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.text(); // Retrieve the raw text content
+            })
+            .then(data => {
+                // This function will be executed when the request is successful
+                console.log('Data:', data);
+
+                // Use the data as needed, for example, updating the DOM
+                document.getElementById("output").textContent = data;
+            })
+            .catch(error => {
+                // This function will be executed if there is an error
+                console.error('Error:', error);
+            });
+    var send = document.getElementById("sendc");
+    send.addEventListener("click", function() {
+        // This function will be executed when the button is clicked
+        if(document.getElementById("command").value == "exit"){
+            fetch('/exit');
+        }
+        else{   
+            fetch("/c/" + document.getElementById("command").value);
+            fetch('/read')
+            .then(response => {
+                // Check if the request was successful (status code 200)
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.text(); // Retrieve the raw text content
+            })
+            .then(data => {
+                // This function will be executed when the request is successful
+                console.log('Data:', data);
+
+                // Use the data as needed, for example, updating the DOM
+                document.getElementById("output").textContent = data;
+            })
+            .catch(error => {
+                // This function will be executed if there is an error
+                console.error('Error:', error);
+            });
+        }
+       
+    });
+    var init = document.getElementById("init");
+    init.addEventListener("click", function() {
+        // This function will be executed when the button is clicked
+       fetch("init");
+    });
+    var button = document.getElementById("read");
+
+    // Add a click event listener to the button
+    button.addEventListener("click", function() {
+        // This function will be executed when the button is clicked
+        fetch('/read')
+            .then(response => {
+                // Check if the request was successful (status code 200)
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.text(); // Retrieve the raw text content
+            })
+            .then(data => {
+                // This function will be executed when the request is successful
+                console.log('Data:', data);
+
+                // Use the data as needed, for example, updating the DOM
+                document.getElementById("output").textContent = data;
+            })
+            .catch(error => {
+                // This function will be executed if there is an error
+                console.error('Error:', error);
+            });
+    });
+
+    var start = document.getElementById("start");
+    start.addEventListener("click", function() {
+        // This function will be executed when the button is clicked
+        fetch('/start');
+        
+    });
+
+    var exit = document.getElementById("exit");
+    exit.addEventListener("click", function() {
+        // This function will be executed when the button is clicked
+        fetch('/exit');
+       
+    });
+</script>
+</html>
+
