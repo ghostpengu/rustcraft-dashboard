@@ -124,27 +124,20 @@ fn load_user_data() {
 }
 
 fn tokenckeck(users: &[User], token: &String) ->bool{
-    unsafe{
-        let i = User{
-            username:String::from("unknow"),
-            password:String::from("f"),
-            token:String::from("F")
-        };
-   
-      
-        for user in users {
-            if user.matchtoken(token) {
-                return true;
-            }
+
+    let i = User{
+        username:String::from("unknow"),
+        password:String::from("f"),
+        token:String::from("F")
+    };
+
+    
+    for user in users {
+        if user.matchtoken(token) {
+            return true;
         }
-     
-
-
-           
-        
-
-        
     }
+
     return false;
 }
 
