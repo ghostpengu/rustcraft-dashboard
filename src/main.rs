@@ -4,6 +4,8 @@ use rusqlite::{params, Connection, Result};
 #[macro_use] extern crate rocket;
 use rocket_dyn_templates::{Template, context};
 static mut RUNNING: bool = false;
+
+static mut USER_DATA: Option<Vec<User>> = None;
 struct Instance{
 
 }
@@ -66,6 +68,12 @@ impl Instance {
         let stdout_str = String::from_utf8_lossy(&out.stdout);
         stdout_str.trim().to_string()
     }
+
+}
+
+struct Database;
+
+impl Database {
     fn dataread(){
         let conn = Connection::open("data.db").unwrap();
         let mut dat = conn.prepare("SELECT * FROM users").unwrap();
@@ -80,6 +88,22 @@ impl Instance {
             println!("{}", username.unwrap().username);
         }
     }
+
+    fn readdatabase() -> Vec<User>{
+        let conn = Connection::open("data.db").unwrap();
+        let mut dat = conn.prepare("SELECT * FROM users").unwrap();
+        let userdata = dat.query_map([], |row| {
+            Ok(User {
+                username: row.get(0).unwrap(),
+                password: row.get(1).unwrap(),
+                token: row.get(2).unwrap(),
+            })
+        }).unwrap();
+
+        let users: Result<Vec<User>, _> = userdata.collect();
+
+        return users.unwrap_or_default();
+    }
     fn writedata(new_user:&User){
 
         let conn = Connection::open("data.db").unwrap();
@@ -91,6 +115,39 @@ impl Instance {
 }
 
 
+
+// Function to read user data into an array
+fn load_user_data() {
+    unsafe {
+       USER_DATA = Some(Database::readdatabase())
+    }
+}
+
+fn tokenckeck(users: &[User], token: &String) ->bool{
+    unsafe{
+        let i = User{
+            username:String::from("unknow"),
+            password:String::from("f"),
+            token:String::from("F")
+        };
+   
+      
+        for user in users {
+            if user.matchtoken(token) {
+                return true;
+            }
+        }
+     
+
+
+           
+        
+
+        
+    }
+    return false;
+}
+
 #[derive(Debug)]
 struct User{
 
@@ -99,6 +156,24 @@ struct User{
     token: String,
 
 }
+
+impl User {
+    fn new(username:&str,password:&str,token:&str) -> Self{
+        User{
+            username:String::from(username),
+            password:String::from(password),
+            token:String::from(token)
+        }
+    }
+
+    fn matchtoken(&self,tok:&String) -> bool{
+        self.token == *tok
+
+    }
+
+}
+
+
 fn fnv1a<T: AsRef<[u8]>>(data: T) -> u64 {
     const FNV_OFFSET_BASIS: u64 = 0xcbf29ce484222325;
     const FNV_PRIME: u64 = 0x100000001b3;
@@ -130,7 +205,9 @@ fn regipage() -> Template {
 
 #[get("/c/<cmd>/<token>")]
 fn sendcommand(cmd:String,token:String){
-    Instance::send_command(cmd,&token);
+    let l = unsafe { &USER_DATA.as_ref().unwrap() };
+    if tokenckeck(l,&token){ Instance::send_command(cmd,&token);}else{println!("no dad?")}
+   
     
 }
 
@@ -148,23 +225,32 @@ fn createuser(user:String,pass:String) -> String {
 
     };
     
-    Instance::writedata(&u);
+    Database::writedata(&u);
    
     format!("{}",&u.token)
 }
 
 #[get("/init/<token>")]
 fn createinstance(token:String) -> &'static str {
-    Instance::start(&token);
-    println!("started instance");
-    "Started!!!!"
+    let l = unsafe { &USER_DATA.as_ref().unwrap() };
+    if tokenckeck(l,&token){
+        Instance::start(&token);
+        println!("started instance");
+        "Started!!!!"
+    }else {
+        println!("No Dad?");
+        "Sorry please rigister"
+    }
+    
 }
 #[get("/start/<token>")]
 fn startinstance(token:String) -> String {
+
+    let l = unsafe { &USER_DATA.as_ref().unwrap() };
     if unsafe {RUNNING}{
 
     }
-    else {
+    else if tokenckeck(l,&token) {
         let new_user =User{
             username: "pingu".to_string(),
             password:"Simple".to_string(),
@@ -177,23 +263,33 @@ fn startinstance(token:String) -> String {
         unsafe{
             RUNNING = true
         }
-    }
+    } 
+        
+  
    
     let out = Instance::read_terminal(&token);
     out
 }
 #[get("/read/<token>")]
 fn readinstance(token:String) -> String {
-    Instance::dataread();
+    let l = unsafe { &USER_DATA.as_ref().unwrap() };
+    if tokenckeck(l,&token) {
+        let out = Instance::read_terminal(&token);
+        println!("{}",out);
+        out
+    }
+    else {
+        "Please Register".to_string()
+    }
+   
     
-    let out = Instance::read_terminal(&token);
-    println!("{}",out);
-    out
+  
 }
 
 
 #[get("/exit/<token>")]
 fn exitinstance(token:String) -> String {
+
     let out = Instance::read_terminal(&token);
     println!("{}",out);
     Instance::destroy_instance(&token);
@@ -201,7 +297,16 @@ fn exitinstance(token:String) -> String {
 }
 #[launch]
 fn rocket() -> _ {
+    thread::spawn(move || {
+        load_user_data();
+        unsafe{
+            let l = &USER_DATA;
+            println!("{:?}",l)
+        }
+    });
+  
    
     rocket::build().mount("/", routes![createinstance,readinstance,startinstance,exitinstance,homepage,sendcommand,regipage,createuser]).attach(Template::fairing())
+
 }
 
