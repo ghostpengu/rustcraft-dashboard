@@ -24,8 +24,8 @@
       <button class="button" id="start">Start</button>
       <button class="button" id="read">Read</button>
       <button class="button" id="exit">Exit</button>
-      <input class="button" id="command" type="text" />
-      <button  id="sendc">Send</button>
+      <input  id="command" type="text" />
+      <button id="sendc">Send</button>
     </div>
 
   </div>
