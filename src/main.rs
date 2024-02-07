@@ -1,137 +1,123 @@
-use std::{process::{Command, exit}, thread, time::Duration, io::stdin};
+use std::{ io::stdin, process::{ exit, Command }, thread, time::Duration };
 
-use rusqlite::{params, Connection, Result};
-#[macro_use] extern crate rocket;
-use rocket_dyn_templates::{Template, context};
+use rusqlite::{ params, Connection, Result };
+#[macro_use]
+extern crate rocket;
+use rocket_dyn_templates::{ context, Template };
 static mut RUNNING: bool = false;
 
 static mut USER_DATA: Option<Vec<User>> = None;
-struct Instance{
-
-}
+struct Instance {}
 
 impl Instance {
-
-    fn start(token:&String)
-    {
+    fn start(token: &String) {
         let mut out = Command::new("tmux")
             .arg("has-session")
             .arg("-t")
             .arg(&token)
-            .output().unwrap();
+            .output()
+            .unwrap();
         let stdout_str = String::from_utf8_lossy(&out.stdout).contains("test");
-        if stdout_str == false{
+        if stdout_str == false {
             Command::new("tmux")
-            .arg("new-session")
-            .arg("-d")
-            .arg("-s")
-            .arg(&token)
-            .spawn().unwrap(); 
+                .arg("new-session")
+                .arg("-d")
+                .arg("-s")
+                .arg(&token)
+                .spawn()
+                .unwrap();
         }
-       
-        
     }
-    fn send_command(command:String,token:&String)
-    {
-       
+    fn send_command(command: String, token: &String) {
         Command::new("tmux")
             .arg("send-keys")
             .arg("-t")
             .arg(&token)
             .arg(command)
             .arg("C-m")
-            .spawn().unwrap(); 
-       
-        
-        
+            .spawn()
+            .unwrap();
     }
-    fn destroy_instance(token:&String){
-        Command::new("tmux")
-        .arg("kill-session")
-        .arg("-t")
-        .arg(&token)
+    fn destroy_instance(token: &String) {
+        Command::new("tmux").arg("kill-session").arg("-t").arg(&token).spawn().unwrap();
 
-        .spawn().unwrap(); 
-        
-        unsafe{
-            RUNNING = false
+        unsafe {
+            RUNNING = false;
         }
     }
-    fn read_terminal(token:&String) -> String{
+    fn read_terminal(token: &String) -> String {
         let out = Command::new("tmux")
-        .arg("capture-pane")
-        .arg("-p")
-        .arg("-t")
-        .arg(token)
-
-        .output().unwrap(); 
+            .arg("capture-pane")
+            .arg("-p")
+            .arg("-t")
+            .arg(token)
+            .output()
+            .unwrap();
         let stdout_str = String::from_utf8_lossy(&out.stdout);
         stdout_str.trim().to_string()
     }
-
 }
 
 struct Database;
 
 impl Database {
-    fn dataread(){
+    fn dataread() {
         let conn = Connection::open("data.db").unwrap();
         let mut dat = conn.prepare("SELECT * FROM users").unwrap();
-        let userdata = dat.query_map([], |row| {
-            Ok(User {
-                username: row.get(0).unwrap(),
-                password: row.get(1).unwrap(),
-                token: row.get(2).unwrap(),
+        let userdata = dat
+            .query_map([], |row| {
+                Ok(User {
+                    username: row.get(0).unwrap(),
+                    password: row.get(1).unwrap(),
+                    token: row.get(2).unwrap(),
+                })
             })
-        }).unwrap();
+            .unwrap();
         for username in userdata {
             println!("{}", username.unwrap().username);
         }
     }
 
-    fn readdatabase() -> Vec<User>{
+    fn readdatabase() -> Vec<User> {
         let conn = Connection::open("data.db").unwrap();
         let mut dat = conn.prepare("SELECT * FROM users").unwrap();
-        let userdata = dat.query_map([], |row| {
-            Ok(User {
-                username: row.get(0).unwrap(),
-                password: row.get(1).unwrap(),
-                token: row.get(2).unwrap(),
+        let userdata = dat
+            .query_map([], |row| {
+                Ok(User {
+                    username: row.get(0).unwrap(),
+                    password: row.get(1).unwrap(),
+                    token: row.get(2).unwrap(),
+                })
             })
-        }).unwrap();
+            .unwrap();
 
         let users: Result<Vec<User>, _> = userdata.collect();
 
         return users.unwrap_or_default();
     }
-    fn writedata(new_user:&User){
-
+    fn writedata(new_user: &User) {
         let conn = Connection::open("data.db").unwrap();
         conn.execute(
             "INSERT INTO users (username, password, token) VALUES (?1, ?2, ?3)",
-            rusqlite::params![new_user.username, new_user.password, new_user.token],
+            rusqlite::params![new_user.username, new_user.password, new_user.token]
         ).unwrap_or(0);
     }
 }
 
-
-
 // Function to read user data into an array
 fn load_user_data() {
     unsafe {
-       USER_DATA = Some(Database::readdatabase())
+        USER_DATA = Some(Database::readdatabase());
     }
 }
 
-fn tokenckeck(users: &[User], token: &String) ->bool{
-
-    let i = User{
-        username:String::from("unknow"),
-        password:String::from("f"),
-        token:String::from("F")
+fn tokenckeck(users: &[User], token: &String) -> bool {
+    let i = User {
+        username: String::from("unknow"),
+        password: String::from("f"),
+        token: String::from("F"),
     };
 
-    
     for user in users {
         if user.matchtoken(token) {
             return true;
@@ -142,30 +128,25 @@ fn tokenckeck(users: &[User], token: &String) ->bool{
 }
 
 #[derive(Debug)]
-struct User{
-
+struct User {
     username: String,
     password: String,
     token: String,
-
 }
 
 impl User {
-    fn new(username:&str,password:&str,token:&str) -> Self{
-        User{
-            username:String::from(username),
-            password:String::from(password),
-            token:String::from(token)
+    fn new(username: &str, password: &str, token: &str) -> Self {
+        User {
+            username: String::from(username),
+            password: String::from(password),
+            token: String::from(token),
         }
     }
 
-    fn matchtoken(&self,tok:&String) -> bool{
+    fn matchtoken(&self, tok: &String) -> bool {
         self.token == *tok
-
     }
-
 }
-
 
 fn fnv1a<T: AsRef<[u8]>>(data: T) -> u64 {
     const FNV_OFFSET_BASIS: u64 = 0xcbf29ce484222325;
@@ -179,112 +160,96 @@ fn fnv1a<T: AsRef<[u8]>>(data: T) -> u64 {
     hash
 }
 
-fn generate_token(pass:String) -> u64{
+fn generate_token(pass: String) -> u64 {
     let hash = fnv1a(pass);
-    println!("Token: {}",hash);
+    println!("Token: {}", hash);
     return hash;
 }
 
 #[get("/")]
 fn homepage() -> Template {
-    Template::render("index",context! {})
+    Template::render("index", context! {})
 }
 
 #[get("/register")]
 fn regipage() -> Template {
-    Template::render("regi",context! {})
+    Template::render("regi", context! {})
 }
-
 
 #[get("/c/<cmd>/<token>")]
-fn sendcommand(cmd:String,token:String){
+fn sendcommand(cmd: String, token: String) {
     let l = unsafe { &USER_DATA.as_ref().unwrap() };
-    if tokenckeck(l,&token){ Instance::send_command(cmd,&token);}else{println!("no dad?")}
-   
-    
+    if tokenckeck(l, &token) {
+        Instance::send_command(cmd, &token);
+    } else {
+        println!("no dad?")
+    }
 }
 
-
-
-
-
 #[get("/createuser/<user>/<pass>")]
-fn createuser(user:String,pass:String) -> String {
+fn createuser(user: String, pass: String) -> String {
     let clone = pass.clone();
-    let u = User{
+    let u = User {
         username: user,
         password: pass,
-        token: generate_token(clone).to_string()
-
+        token: generate_token(clone).to_string(),
     };
-    
+
     Database::writedata(&u);
-   
-    format!("{}",&u.token)
+
+    format!("{}", &u.token)
 }
 
 #[get("/init/<token>")]
-fn createinstance(token:String) -> &'static str {
+fn createinstance(token: String) -> &'static str {
     let l = unsafe { &USER_DATA.as_ref().unwrap() };
-    if tokenckeck(l,&token){
+    if tokenckeck(l, &token) {
         Instance::start(&token);
         println!("started instance");
         "Started!!!!"
-    }else {
+    } else {
         println!("No Dad?");
         "Sorry please rigister"
     }
-    
 }
 #[get("/start/<token>")]
-fn startinstance(token:String) -> String {
-
+fn startinstance(token: String) -> String {
     let l = unsafe { &USER_DATA.as_ref().unwrap() };
-    if unsafe {RUNNING}{
-
-    }
-    else if tokenckeck(l,&token) {
-        let new_user =User{
+    if (unsafe { RUNNING }) {
+    } else if tokenckeck(l, &token) {
+        let new_user = User {
             username: "pingu".to_string(),
-            password:"Simple".to_string(),
-            token:"WOW".to_string(),
-        }; 
+            password: "Simple".to_string(),
+            token: "WOW".to_string(),
+        };
         //Instance::writedata(new_user);
-        Instance::send_command("cd ~/minecraft-dashboard/target/debug/server".to_string(),&token);
+        Instance::send_command("cd ~/minecraft-dashboard/target/debug/server".to_string(), &token);
         thread::sleep(Duration::from_micros(100));
-        Instance::send_command("./start.sh".to_string(),&token);  
-        unsafe{
-            RUNNING = true
+        Instance::send_command("./start.sh".to_string(), &token);
+        unsafe {
+            RUNNING = true;
         }
-    } 
-        
-  
-   
+    }
+
     let out = Instance::read_terminal(&token);
     out
 }
 #[get("/read/<token>")]
-fn readinstance(token:String) -> String {
+fn readinstance(token: String) -> String {
     let l = unsafe { &USER_DATA.as_ref().unwrap() };
-    if tokenckeck(l,&token) {
+    if tokenckeck(l, &token) {
         let out = Instance::read_terminal(&token);
-        println!("{}",out);
+        println!("{}", out);
         out
-    }
-    else {
+    } else {
         "Please Register".to_string()
     }
-   
-    
-  
 }
 
-
 #[get("/exit/<token>")]
-fn exitinstance(token:String) -> String {
-
+fn exitinstance(token: String) -> String {
     let out = Instance::read_terminal(&token);
-    println!("{}",out);
+    println!("{}", out);
     Instance::destroy_instance(&token);
     out
 }
@@ -292,14 +257,26 @@ fn exitinstance(token:String) -> String {
 fn rocket() -> _ {
     thread::spawn(move || {
         load_user_data();
-        unsafe{
+        unsafe {
             let l = &USER_DATA;
-            println!("{:?}",l)
+            println!("{:?}", l)
         }
     });
-  
-   
-    rocket::build().mount("/", routes![createinstance,readinstance,startinstance,exitinstance,homepage,sendcommand,regipage,createuser]).attach(Template::fairing())
 
+    rocket
+        ::build()
+        .mount(
+            "/",
+            routes![
+                createinstance,
+                readinstance,
+                startinstance,
+                exitinstance,
+                homepage,
+                sendcommand,
+                regipage,
+                createuser
+            ]
+        )
+        .attach(Template::fairing())
 }
-
