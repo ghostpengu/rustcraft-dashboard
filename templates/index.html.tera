@@ -24,7 +24,7 @@
       <button class="button" id="start">Start</button>
       <button class="button" id="read">Read</button>
       <button class="button" id="exit">Exit</button>
-      <input  id="command" type="text" />
+      <input id="command" type="text" />
       <button id="sendc">Send</button>
     </div>
 
@@ -176,11 +176,11 @@
   }
 
   #output {
-    padding: 10px;
+    padding: 20px;
     background-color: #727272;
     border: 1px solid #727272;
     border-radius: 5px;
-    min-width: 400px;
+    min-width: 600px;
     color: white;
   }
 
@@ -231,25 +231,28 @@
       fetch("/exit/" + token);
     } else {
       fetch("/c/" + document.getElementById("command").value + "/" + token);
-      fetch("/read/" + token)
-        .then((response) => {
-          // Check if the request was successful (status code 200)
-          if (!response.ok) {
-            throw new Error("Network response was not ok");
-          }
-          return response.text(); // Retrieve the raw text content
-        })
-        .then((data) => {
-          // This function will be executed when the request is successful
-          console.log("Data:", data);
+      setTimeout(function () {
+        fetch("/read/" + token)
+          .then((response) => {
+            // Check if the request was successful (status code 200)
+            if (!response.ok) {
+              throw new Error("Network response was not ok");
+            }
+            return response.text(); // Retrieve the raw text content
+          })
+          .then((data) => {
+            // This function will be executed when the request is successful
+            console.log("Data:", data);
 
-          // Use the data as needed, for example, updating the DOM
-          document.getElementById("output").textContent = data;
-        })
-        .catch((error) => {
-          // This function will be executed if there is an error
-          console.error("Error:", error);
-        });
+            // Use the data as needed, for example, updating the DOM
+            document.getElementById("output").textContent = data;
+          })
+          .catch((error) => {
+            // This function will be executed if there is an error
+            console.error("Error:", error);
+          });
+      }, 30);
+
     }
   });
   var init = document.getElementById("init");
