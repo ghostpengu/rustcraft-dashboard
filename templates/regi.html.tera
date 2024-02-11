@@ -4,9 +4,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Document</title>
+  <title>Register</title>
+  <link rel="stylesheet" href="/static/css/register.css">
 </head>
-
+<script src="/static/js/register.js"></script>
 <body>
   <div class="holder">
     <p>LOGIN</p>
@@ -15,139 +16,6 @@
     <button id="s">submit</button>
   </div>
 </body>
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    background-color: #222;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-  }
 
-  p {
-    text-align: center;
-    font-family: Arial, Helvetica, sans-serif;
-    color: white;
-    font-size: 20px;
-  }
-
-  .holder {
-    width: 300px;
-    background-color: #333;
-    padding: 30px;
-    border-radius: 4px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-
-  .login-register {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 20px;
-  }
-
-  .login-register a {
-    color: #007bff;
-    text-decoration: none;
-  }
-
-  #username,
-  #password {
-    width: 93%;
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    transition: all 0.3s ease;
-  }
-
-  #username:focus,
-  #password:focus {
-    outline: none;
-    box-shadow: 0 2px 4px rgba(0, 120, 212, 0.1);
-    border-color: #007bff;
-  }
-
-  #s {
-    width: 100%;
-    padding: 10px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
-
-  #s:hover {
-    background-color: #0069d9;
-  }
-</style>
-<script>
-  var send = document.getElementById("s");
-  send.addEventListener("click", function () {
-    // This function will be executed when the button is clicked
-    function setCookie(name, value, days) {
-      const date = new Date();
-      date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
-      const expires = "expires=" + date.toUTCString();
-      document.cookie = name + "=" + value + ";" + expires + ";path=/";
-    }
-
-    // Example usage
-    const cookieName = "token";
-    const cookieValue = "Hello, World!";
-    const expirationDays = 360; // Expires in 30 days
-
-    // Set the cookie with the name "my_cookie" and value "Hello, World!"
-
-    fetch(
-      "/createuser/" +
-      document.getElementById("username").value +
-      "/" +
-      document.getElementById("password").value
-    )
-      .then((response) => {
-        // Check if the request was successful (status code 200)
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return response.text(); // Retrieve the raw text content
-      })
-      .then((data) => {
-        // This function will be executed when the request is successful
-        console.log("Data:", data);
-
-        // Use the data as needed, for example, updating the DOM
-        setCookie(cookieName, data, expirationDays);
-      })
-      .catch((error) => {
-        // This function will be executed if there is an error
-        console.error("Error:", error);
-      });
-    window.location.href = "/";
-  });
-
-  function getCookie(name) {
-    const cookieName = name + "="; // the name of the cookie followed by "="
-    const decodedCookie = decodeURIComponent(document.cookie); // decode the cookie string
-    const cookieArray = decodedCookie.split(";"); // split the string into an array of cookies
-    for (let i = 0; i < cookieArray.length; i++) {
-      // loop through each cookie
-      let cookie = cookieArray[i].trim(); // remove leading and trailing whitespaces
-      if (cookie.indexOf(cookieName) === 0) {
-        // if this is the cookie we're looking for
-        return cookie.substring(cookieName.length, cookie.length); // return its value
-      }
-    }
-    return ""; // return empty string if cookie not found
-  }
-
-  // Example usage
-  const cookieValue = getCookie("token"); // get the value of the cookie named "my_cookie"
-  console.log(cookieValue); // print the value to the console
-
-</script>
 
 </html>

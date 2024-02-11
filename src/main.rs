@@ -1,25 +1,38 @@
-use std::{thread, time::Duration };
+use std::{ thread, time::Duration };
 mod instance;
-
+use std::io::{ self, Write };
 use instance::*;
 mod database;
-
+use rocket::serde::Serialize;
 use database::*;
-
+use rocket::serde::json::Json;
+use rocket::fs::{FileServer, relative};
+use std::path::{Path, PathBuf};
 #[macro_use]
 extern crate rocket;
 use rocket_dyn_templates::{ context, Template };
 
-
 static mut USER_DATA: Option<Vec<database::User>> = None;
-
-
-
+#[derive(Serialize,Debug)]
+struct Client{
+    username:String,
+    token:String
+}
 // Function to read user data into an array
 fn load_user_data() {
     unsafe {
         USER_DATA = Some(Database::readdatabase());
+        
     }
+}
+#[get("/person")]
+fn get_user() -> Json<User> {
+    let person = User {
+        username: "error reading database".to_string(),
+        password: "error reading database".to_string(),
+        token: "error reading database".to_string(),
+    };
+    Json(person)
 }
 
 fn tokenckeck(users: &[User], token: &String) -> bool {
@@ -37,9 +50,6 @@ fn tokenckeck(users: &[User], token: &String) -> bool {
 
     return false;
 }
-
-
-
 
 fn fnv1a<T: AsRef<[u8]>>(data: T) -> u64 {
     const FNV_OFFSET_BASIS: u64 = 0xcbf29ce484222325;
@@ -74,14 +84,13 @@ fn sendcommand(cmd: String, token: String) {
     let l = unsafe { &USER_DATA.as_ref().unwrap() };
     if tokenckeck(l, &token) && Instance::isrunning(&token) {
         Instance::send_command(cmd, &token);
-        
     } else {
         println!("no dad?")
     }
 }
 
 #[get("/createuser/<user>/<pass>")]
-fn createuser(user: String, pass: String) -> String {
+fn createuser(user: String, pass: String) -> Json<Client> {
     let clone = pass.clone();
     let u = User {
         username: user,
@@ -90,8 +99,13 @@ fn createuser(user: String, pass: String) -> String {
     };
 
     Database::writedata(&u);
+    reloaddata();
 
-    format!("{}", &u.token)
+    let client = Client{
+        username:u.username,
+        token:u.token
+    };
+    Json(client)
 }
 
 #[get("/init/<token>")]
@@ -101,25 +115,30 @@ fn createinstance(token: String) -> &'static str {
         Instance::start(&token);
         println!("started instance");
         thread::sleep(Duration::from_millis(100));
-        Instance::send_command("cd ~/failed/rustcraft-dashboard/target/debug/server".to_string(), &token);
+        Instance::send_command(
+            "cd ~/failed/rustcraft-dashboard/target/debug/server".to_string(),
+            &token
+        );
         thread::sleep(Duration::from_micros(500));
         Instance::send_command("./start.sh".to_string(), &token);
         "Started!!!!"
     } else {
-       // println!("No Dad?");
+        // println!("No Dad?");
         "Check if you are logined if yes click init to start server"
     }
 }
 #[get("/start/<token>")]
 fn startinstance(token: String) -> String {
     let l = unsafe { &USER_DATA.as_ref().unwrap() };
-  
+
     if tokenckeck(l, &token) {
         //Instance::writedata(new_user);
-        Instance::send_command("cd ~/failed/rustcraft-dashboard/target/debug/server".to_string(), &token);
+        Instance::send_command(
+            "cd ~/failed/rustcraft-dashboard/target/debug/server".to_string(),
+            &token
+        );
         thread::sleep(Duration::from_micros(100));
         Instance::send_command("./start.sh".to_string(), &token);
-       
     }
 
     let out = Instance::read_terminal(&token);
@@ -144,9 +163,7 @@ fn exitinstance(token: String) -> String {
     Instance::destroy_instance(&token);
     out
 }
-
-#[launch]
-fn rocket() -> _ {
+fn reloaddata() {
     thread::spawn(move || {
         load_user_data();
         unsafe {
@@ -154,6 +171,30 @@ fn rocket() -> _ {
             println!("{:?}", l)
         }
     });
+}
+#[launch]
+fn rocket() -> _ {
+    thread::spawn(move || {
+        loop {
+            let mut input = String::new();
+            print!("console> ");
+            io::stdout().flush().expect("Failed to flush stdout"); // Flush stdout to ensure prompt is displayed
+            io::stdin().read_line(&mut input).expect("Failed to read line");
+
+            match input.trim() {
+                "delete" => {
+                    match Database::deletedata() {
+                        Ok(_) => println!("Data deleted!"),
+                        Err(err) => println!("{}", err),
+                    }
+                }
+                _ => {
+                    continue;
+                }
+            }
+        }
+    });
+    reloaddata();
 
     rocket
         ::build()
@@ -167,8 +208,11 @@ fn rocket() -> _ {
                 homepage,
                 sendcommand,
                 regipage,
-                createuser
+                createuser,
+                get_user
+                
             ]
         )
+        .mount("/static", FileServer::from("static"))
         .attach(Template::fairing())
 }

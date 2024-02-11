@@ -1,12 +1,13 @@
+use rocket::serde::Serialize;
+
 use rusqlite::{ Connection, Result };
 pub struct Database;
-#[derive(Debug)]
+#[derive(Serialize,Debug)]
 pub struct User {
     pub username: String,
     pub password: String,
     pub token: String,
 }
-
 
 impl User {
     pub fn new(username: &str, password: &str, token: &str) -> Self {
@@ -23,6 +24,12 @@ impl User {
 }
 
 impl Database {
+    pub fn deletedata() -> Result<()> {
+        let conn = Connection::open("data.db").unwrap();
+
+        conn.execute("DELETE FROM users", [])?;
+        Ok(())
+    }
     pub fn dataread() {
         let conn = Connection::open("data.db").unwrap();
         let mut dat = conn.prepare("SELECT * FROM users").unwrap();
@@ -35,6 +42,7 @@ impl Database {
                 })
             })
             .unwrap();
+
         for username in userdata {
             println!("{}", username.unwrap().username);
         }
@@ -54,8 +62,13 @@ impl Database {
             .unwrap();
 
         let users: Result<Vec<User>, _> = userdata.collect();
+        let default = vec![User {
+            username: "error reading database".to_string(),
+            password: "error reading database".to_string(),
+            token: "error reading database".to_string(),
+        }];
 
-        return users.unwrap_or_default();
+        return users.unwrap_or(default);
     }
     pub fn writedata(new_user: &User) {
         let conn = Connection::open("data.db").unwrap();
