@@ -61,9 +61,5 @@ document.addEventListener("DOMContentLoaded", function() {
     }
     return ""; // return empty string if cookie not found
   }
-  
-  // Example usage
-  const cookieValue = getCookie("token"); // get the value of the cookie named "my_cookie"
-   // print the value to the console
-  
+
 });
