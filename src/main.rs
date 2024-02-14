@@ -6,23 +6,23 @@ mod database;
 use rocket::serde::Serialize;
 use database::*;
 use rocket::serde::json::Json;
-use rocket::fs::{FileServer, relative};
-use std::path::{Path, PathBuf};
+use rocket::fs::{ FileServer, relative };
+use std::path::{ Path, PathBuf };
+use core::ptr::addr_of;
 #[macro_use]
 extern crate rocket;
 use rocket_dyn_templates::{ context, Template };
 
 static mut USER_DATA: Option<Vec<database::User>> = None;
-#[derive(Serialize,Debug)]
-struct Client{
-    username:String,
-    token:String
+#[derive(Serialize, Debug)]
+struct Client {
+    username: String,
+    token: String,
 }
 // Function to read user data into an array
 fn load_user_data() {
     unsafe {
         USER_DATA = Some(Database::readdatabase());
-        
     }
 }
 #[get("/person")]
@@ -33,6 +33,15 @@ fn get_user() -> Json<User> {
         token: "error reading database".to_string(),
     };
     Json(person)
+}
+
+fn logincheck(users: &[User], username: &String, pass: &String) -> bool {
+    for user in users {
+        if user.login(username, pass) {
+            return true;
+        }
+    }
+    return false;
 }
 
 fn tokenckeck(users: &[User], token: &String) -> bool {
@@ -92,18 +101,20 @@ fn sendcommand(cmd: String, token: String) {
 #[get("/createuser/<user>/<pass>")]
 fn createuser(user: String, pass: String) -> Json<Client> {
     let clone = pass.clone();
+    let l = unsafe { &USER_DATA.as_ref().unwrap() };
     let u = User {
         username: user,
         password: pass,
         token: generate_token(clone).to_string(),
     };
+    if !logincheck(l, &u.username, &u.password) {
+        Database::writedata(&u);
+        reloaddata();
+    }
 
-    Database::writedata(&u);
-    reloaddata();
-
-    let client = Client{
-        username:u.username,
-        token:u.token
+    let client = Client {
+        username: u.username,
+        token: u.token,
     };
     Json(client)
 }
@@ -167,7 +178,7 @@ fn reloaddata() {
     thread::spawn(move || {
         load_user_data();
         unsafe {
-            let l = &USER_DATA;
+            let l = addr_of!(USER_DATA);
             println!("{:?}", l)
         }
     });
@@ -176,7 +187,7 @@ fn reloaddata() {
 fn rocket() -> _ {
     thread::spawn(move || {
         loop {
-            let mut input =  String::default();
+            let mut input = String::default();
             print!("console> ");
             io::stdout().flush().expect("Failed to flush stdout"); // Flush stdout to ensure prompt is displayed
             io::stdin().read_line(&mut input).expect("Failed to read line");
@@ -210,7 +221,6 @@ fn rocket() -> _ {
                 regipage,
                 createuser,
                 get_user
-                
             ]
         )
         .mount("/static", FileServer::from("static"))

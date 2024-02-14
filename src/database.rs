@@ -2,7 +2,7 @@ use rocket::serde::Serialize;
 
 use rusqlite::{ Connection, Result };
 pub struct Database;
-#[derive(Serialize,Debug)]
+#[derive(Serialize, Debug)]
 pub struct User {
     pub username: String,
     pub password: String,
@@ -20,6 +20,9 @@ impl User {
 
     pub fn matchtoken(&self, tok: &String) -> bool {
         self.token == *tok
+    }
+    pub fn login(&self, username: &String, password: &String) -> bool {
+        if self.username == *username && self.password == *password { true } else { false }
     }
 }
 
