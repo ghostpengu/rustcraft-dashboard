@@ -176,7 +176,7 @@ fn reloaddata() {
 fn rocket() -> _ {
     thread::spawn(move || {
         loop {
-            let mut input = String::new();
+            let mut input =  String::default();
             print!("console> ");
             io::stdout().flush().expect("Failed to flush stdout"); // Flush stdout to ensure prompt is displayed
             io::stdin().read_line(&mut input).expect("Failed to read line");

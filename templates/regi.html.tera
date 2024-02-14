@@ -7,13 +7,15 @@
   <title>Register</title>
   <link rel="stylesheet" href="/static/css/register.css">
 </head>
-<script src="/static/js/register.js"></script>
+
 <body>
+
   <div class="holder">
+    <script src="/static/js/register.js"></script>
     <p>LOGIN</p>
     <input id="username" type="text" placeholder="Username" />
     <input id="password" type="text" placeholder="Password" />
-    <button id="s">submit</button>
+    <button id="submit">submit</button>
   </div>
 </body>
 

@@ -7,11 +7,11 @@
   <title>Document</title>
   <link rel="stylesheet" href="/static/css/index.css">
 
-  
+
 </head>
 <script src="/static/js/index.js"></script>
 <div class="top-bar">
-  <div class="logo">Your Logo</div>
+  <div class="logo" id="username">Your Logo</div>
   <ul class="nav-links">
     <li><a class="button" href="">Console</a></li>
     <li><a class="button" href="">Files</a></li>

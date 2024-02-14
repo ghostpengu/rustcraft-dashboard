@@ -1,3 +1,5 @@
+
+
 function getCookie(name) {
     const cookieName = name + "="; // the name of the cookie followed by "="
     const decodedCookie = decodeURIComponent(document.cookie); // decode the cookie string
@@ -12,6 +14,10 @@ function getCookie(name) {
     }
     return ""; // return empty string if cookie not found
   }
+
+document.addEventListener("DOMContentLoaded", function() {
+  let usernametext = document.getElementById("username");
+  usernametext.textContent = getCookie("username");
   const token = getCookie("token");
   fetch("/read/" + token)
     .then((response) => {
@@ -32,10 +38,10 @@ function getCookie(name) {
       // This function will be executed if there is an error
       console.error("Error:", error);
     });
-  var send = document.getElementById("sendc");
+  let send = document.getElementById("sendc");
   send.addEventListener("click", function () {
     // This function will be executed when the button is clicked
-    if (document.getElementById("command").value == "exit") {
+    if (document.getElementById("command").value === "exit") {
       fetch("/exit/" + token);
     } else {
       fetch("/c/" + document.getElementById("command").value + "/" + token);
@@ -63,12 +69,12 @@ function getCookie(name) {
 
     }
   });
-  var init = document.getElementById("init");
+  let init = document.getElementById("init");
   init.addEventListener("click", function () {
     // This function will be executed when the button is clicked
     fetch("init/" + token);
   });
-  var button = document.getElementById("read");
+  let button = document.getElementById("read");
 
   // Add a click event listener to the button
   button.addEventListener("click", function () {
@@ -94,14 +100,16 @@ function getCookie(name) {
       });
   });
 
-  var start = document.getElementById("start");
+  let start = document.getElementById("start");
   start.addEventListener("click", function () {
     // This function will be executed when the button is clicked
     fetch("/start/" + token);
   });
 
-  var exit = document.getElementById("exit");
+  let exit = document.getElementById("exit");
   exit.addEventListener("click", function () {
     // This function will be executed when the button is clicked
     fetch("/exit/" + token);
   });
+});
+ 
