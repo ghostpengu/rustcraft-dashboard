@@ -64,6 +64,6 @@ document.addEventListener("DOMContentLoaded", function() {
   
   // Example usage
   const cookieValue = getCookie("token"); // get the value of the cookie named "my_cookie"
-  console.log(cookieValue); // print the value to the console
+   // print the value to the console
   
 });
