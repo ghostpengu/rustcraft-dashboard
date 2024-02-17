@@ -1,5 +1,6 @@
 use std::io::{self, Write};
-
+use rustyline::error::ReadlineError;
+use rustyline::{DefaultEditor, Result};
 use std::process::exit;
 use std::thread;
 use crate::database;
@@ -32,56 +33,77 @@ fn parse_command(input: &str) -> Tokens {
 }
 pub fn console(){
     thread::spawn(move || {
+        let mut rl = DefaultEditor::new().unwrap();
+        #[cfg(feature = "with-file-history")]
+        if rl.load_history("history.txt").is_err() {
+            println!("No previous history.");
+        }
         loop {
-            print!("> ");
-            io::stdout().flush().expect("Failed to flush stdout");
-    
-            let mut input = String::new();
-            io::stdin().read_line(&mut input).expect("Failed to read line");
-    
-            match parse_command(&input) {
-                Tokens::CreateUser(username,pass) => {
-                    let clone = pass.clone();
-                    let user = User{
-                        username:username,
-                        password:pass,
-                        token:generate_token(clone).to_string()
-                    };
-                   
-                    match Database::writedata(&user) {
-                        Ok(suc)=>  println!("Created user {:?}",&user),
-                        Err(err)=>println!("{err}")
+            let readline = rl.readline("> ");
+            match readline {
+                Ok(line) => {
+                    rl.add_history_entry(line.as_str());
+                    match parse_command(&line) {
+                        Tokens::CreateUser(username,pass) => {
+                            let clone = pass.clone();
+                            let user = User{
+                                username:username,
+                                password:pass,
+                                token:generate_token(clone).to_string()
+                            };
+                           
+                            match Database::writedata(&user) {
+                                Ok(suc)=>  println!("Created user {:?}",&user),
+                                Err(err)=>println!("{err}")
+                            }
+                         }
+                        Tokens::ReadAll() => {
+                           let data = Database::readdatabase();
+                           println!("{:?}",data);
+                        }
+                        Tokens::Read(reading) => {
+                            let user = Database::dataread(&reading);
+                            println!("{:?}",user);
+                        }
+                        Tokens::Clear => {
+                            Command::new("clear").status().expect("Failed to clear");      
+                        }
+                        Tokens::Print(txt) =>{
+                            println!("{txt}");
+                        }
+                        Tokens::Delete() => {
+                           match  Database::deletedata(){
+                                Ok(_) => println!("Deleted database💀"),
+                                Err(err) => println!("Error: {err}")
+                           }
+                            // Implement deletion logic here
+                        }
+                        Tokens::Exit => {
+                            println!("Exiting...");
+                            exit(0)
+                        }
+                        Tokens::Unknown => {
+                            println!("Unknown Command");
+                        }
                     }
-                 }
-                Tokens::ReadAll() => {
-                   let data = Database::readdatabase();
-                   println!("{:?}",data);
-                }
-                Tokens::Read(reading) => {
-                    let user = Database::dataread(&reading);
-                    println!("{:?}",user);
-                }
-                Tokens::Clear => {
-                    Command::new("clear").status().expect("Failed to clear");      
-                }
-                Tokens::Print(txt) =>{
-                    println!("{txt}");
-                }
-                Tokens::Delete() => {
-                   match  Database::deletedata(){
-                        Ok(_) => println!("Deleted database💀"),
-                        Err(err) => println!("Error: {err}")
-                   }
-                    // Implement deletion logic here
-                }
-                Tokens::Exit => {
-                    println!("Exiting...");
-                    exit(0)
-                }
-                Tokens::Unknown => {
-                    println!("Unknown Command");
+                   
+                },
+                Err(ReadlineError::Interrupted) => {
+                    println!("CTRL-C");
+                    break
+                },
+                Err(ReadlineError::Eof) => {
+                    println!("CTRL-D");
+                    break
+                },
+                Err(err) => {
+                    println!("Error: {:?}", err);
+                    break
                 }
             }
+           
+    
+           
         }
     });
 }
