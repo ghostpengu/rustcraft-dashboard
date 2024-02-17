@@ -1,4 +1,6 @@
 use std::{ thread, time::Duration };
+mod console;
+use console::*;
 mod instance;
 use std::io::{ self, Write };
 use instance::*;
@@ -9,6 +11,7 @@ use rocket::serde::json::Json;
 use rocket::fs::{ FileServer, relative };
 use std::path::{ Path, PathBuf };
 use core::ptr::addr_of;
+
 #[macro_use]
 extern crate rocket;
 use rocket_dyn_templates::{ context, Template };
@@ -60,23 +63,8 @@ fn tokenckeck(users: &[User], token: &String) -> bool {
     return false;
 }
 
-fn fnv1a<T: AsRef<[u8]>>(data: T) -> u64 {
-    const FNV_OFFSET_BASIS: u64 = 0xcbf29ce484222325;
-    const FNV_PRIME: u64 = 0x100000001b3;
 
-    let mut hash = FNV_OFFSET_BASIS;
-    for byte in data.as_ref() {
-        hash ^= *byte as u64;
-        hash = hash.wrapping_mul(FNV_PRIME);
-    }
-    hash
-}
 
-fn generate_token(pass: String) -> u64 {
-    let hash = fnv1a(pass);
-    println!("Token: {}", hash);
-    return hash;
-}
 
 #[get("/")]
 fn homepage() -> Template {
@@ -108,7 +96,11 @@ fn createuser(user: String, pass: String) -> Json<Client> {
         token: generate_token(clone).to_string(),
     };
     if !logincheck(l, &u.username, &u.password) {
-        Database::writedata(&u);
+        match Database::writedata(&u) {
+            Ok(suc)=> println!("{suc}"),
+            Err(err)=>println!("{err}")
+        }
+        
         reloaddata();
     }
 
@@ -185,26 +177,7 @@ fn reloaddata() {
 }
 #[launch]
 fn rocket() -> _ {
-    thread::spawn(move || {
-        loop {
-            let mut input = String::default();
-            print!("console> ");
-            io::stdout().flush().expect("Failed to flush stdout"); // Flush stdout to ensure prompt is displayed
-            io::stdin().read_line(&mut input).expect("Failed to read line");
-
-            match input.trim() {
-                "delete" => {
-                    match Database::deletedata() {
-                        Ok(_) => println!("Data deleted!"),
-                        Err(err) => println!("{}", err),
-                    }
-                }
-                _ => {
-                    continue;
-                }
-            }
-        }
-    });
+    console();
     reloaddata();
 
     rocket
