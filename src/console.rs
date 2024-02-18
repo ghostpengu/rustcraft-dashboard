@@ -12,8 +12,8 @@ enum Tokens {
     CreateUser(String, String),
     DeleteUser(String),
     Read(String),
-    ReadAll(),
-    Delete(),
+    ReadAll,
+    Delete,
     Clear,
     Exit,
     Unknown,
@@ -24,8 +24,8 @@ fn parse_command(input: &str) -> Tokens {
     match parts.len() {
         1 if parts[0].to_lowercase() == "exit" => Tokens::Exit,
         2 if parts[0].to_lowercase() == "deleteuser" => Tokens::DeleteUser(parts[1].to_string()),
-        1 if parts[0].to_lowercase() == "readall" => Tokens::ReadAll(),
-        1 if parts[0].to_lowercase() == "delete" => Tokens::Delete(),
+        1 if parts[0].to_lowercase() == "readall" => Tokens::ReadAll,
+        1 if parts[0].to_lowercase() == "delete" => Tokens::Delete,
         2 if parts[0].to_lowercase() == "read" => Tokens::Read(parts[1].to_string()),
         1.. if parts[0].to_lowercase() == "print" => Tokens::Print(parts[1..].join(" ")),
         3 if parts[0].to_lowercase() == "createuser" =>
@@ -61,7 +61,7 @@ pub fn console() {
                                 Err(err) => println!("{err}"),
                             }
                         }
-                        Tokens::ReadAll() => {
+                        Tokens::ReadAll => {
                             let data = Database::readdatabase();
                             println!("{:?}", data);
                         }
@@ -82,7 +82,7 @@ pub fn console() {
                             }
                             // Implement deletion logic here
                         }
-                        Tokens::Delete() => {
+                        Tokens::Delete => {
                             match Database::deletedata() {
                                 Ok(_) => println!("Deleted database💀"),
                                 Err(err) => println!("Error: {err}"),
