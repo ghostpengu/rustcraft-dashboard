@@ -1,7 +1,50 @@
 use std::process::Command;
-pub struct Instance {}
+use std::{ default, fs };
+use std::fs::File;
+use std::io;
 
+pub struct Instance {}
+fn delete_dir_contents(dir_path: &String) -> io::Result<()> {
+    for entry in fs::read_dir(dir_path)? {
+        let entry = entry?;
+        let path = entry.path();
+
+        if path.is_dir() {
+            delete_dir(&path.to_string_lossy().to_string())?;
+        } else {
+            fs::remove_file(&path)?;
+        }
+    }
+    Ok(())
+}
+
+fn delete_dir(dir_path: &String) -> io::Result<()> {
+    delete_dir_contents(dir_path)?;
+    fs::remove_dir(dir_path)?;
+    Ok(())
+}
 impl Instance {
+    pub fn unzip(name: &String) {
+        let file = File::open("minecraftdata/server.zip").unwrap();
+        let mut archive = zip::ZipArchive::new(file).unwrap();
+        archive.extract(format!("{name}")).unwrap();
+    }
+    pub fn deletefolder(name: String) {
+        match delete_dir(&name.to_string()) {
+            Ok(_) => println!("Folder deleted successfully"),
+            Err(e) => println!("Error deleting folder: {:?}", e),
+        }
+    }
+    pub fn createfolder(name: String, createuser: bool) {
+        if createuser {
+            Instance::unzip(&name);
+        }
+
+        match fs::create_dir_all(name) {
+            Ok(_) => println!("Directory created successfully"),
+            Err(e) => println!("Error creating directory: {:?}", e),
+        }
+    }
     pub fn isrunning(id: &String) -> bool {
         let output = Command::new("tmux")
             .arg("has-session")
@@ -19,12 +62,7 @@ impl Instance {
         }
     }
     pub fn start(token: &String) {
-        let out = Command::new("tmux")
-            .arg("has-session")
-            .arg("-t")
-            .arg(&token)
-            .output()
-            .unwrap();
+        let out = Command::new("tmux").arg("has-session").arg("-t").arg(&token).output().unwrap();
         let stdout_str = String::from_utf8_lossy(&out.stdout).contains("test");
         if stdout_str == false {
             Command::new("tmux")
@@ -48,8 +86,6 @@ impl Instance {
     }
     pub fn destroy_instance(token: &String) {
         Command::new("tmux").arg("kill-session").arg("-t").arg(&token).spawn().unwrap();
-
-      
     }
     pub fn read_terminal(token: &String) -> String {
         let out = Command::new("tmux")

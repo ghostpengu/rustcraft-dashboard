@@ -2,15 +2,14 @@ use std::{ thread, time::Duration };
 mod console;
 use console::*;
 mod instance;
-use std::io::{ self, Write };
 use instance::*;
 mod database;
 use rocket::serde::Serialize;
 use database::*;
 use rocket::serde::json::Json;
-use rocket::fs::{ FileServer, relative };
-use std::path::{ Path, PathBuf };
+use rocket::fs::FileServer;
 use core::ptr::addr_of;
+use std::env;
 
 #[macro_use]
 extern crate rocket;
@@ -63,9 +62,6 @@ fn tokenckeck(users: &[User], token: &String) -> bool {
     return false;
 }
 
-
-
-
 #[get("/")]
 fn homepage() -> Template {
     Template::render("index", context! {})
@@ -88,19 +84,20 @@ fn sendcommand(cmd: String, token: String) {
 
 #[get("/createuser/<user>/<pass>")]
 fn createuser(user: String, pass: String) -> Json<Client> {
-    let clone = pass.clone();
+    let passclone = pass.clone();
+    let usernameclone = user.clone();
     let l = unsafe { &USER_DATA.as_ref().unwrap() };
     let u = User {
         username: user,
         password: pass,
-        token: generate_token(clone).to_string(),
+        token: generate_token(usernameclone, passclone).to_string(),
     };
     if !logincheck(l, &u.username, &u.password) {
         match Database::writedata(&u) {
-            Ok(suc)=> println!("{suc}"),
-            Err(err)=>println!("{err}")
+            Ok(suc) => println!("{suc}"),
+            Err(err) => println!("{err}"),
         }
-        
+
         reloaddata();
     }
 
@@ -108,6 +105,7 @@ fn createuser(user: String, pass: String) -> Json<Client> {
         username: u.username,
         token: u.token,
     };
+
     Json(client)
 }
 
@@ -116,12 +114,14 @@ fn createinstance(token: String) -> &'static str {
     let l = unsafe { &USER_DATA.as_ref().unwrap() };
     if tokenckeck(l, &token) {
         Instance::start(&token);
+        let path = env::current_dir().unwrap();
+        let x = path.display();
         println!("started instance");
         thread::sleep(Duration::from_millis(100));
-        Instance::send_command(
-            "cd ~/failed/rustcraft-dashboard/target/debug/server".to_string(),
-            &token
-        );
+
+        Instance::send_command(format!("cd {x}/minecraftdata/{token}"), &token);
+        thread::sleep(Duration::from_millis(100));
+        Instance::send_command(format!("chmod 777 start.sh"), &token);
         thread::sleep(Duration::from_micros(500));
         Instance::send_command("./start.sh".to_string(), &token);
         "Started!!!!"
@@ -136,10 +136,10 @@ fn startinstance(token: String) -> String {
 
     if tokenckeck(l, &token) {
         //Instance::writedata(new_user);
-        Instance::send_command(
-            "cd ~/failed/rustcraft-dashboard/target/debug/server".to_string(),
-            &token
-        );
+        let path = env::current_dir().unwrap();
+        let x = path.display();
+
+        Instance::send_command(format!("cd {x}/minecraftdata/{token}"), &token);
         thread::sleep(Duration::from_micros(100));
         Instance::send_command("./start.sh".to_string(), &token);
     }
@@ -175,10 +175,12 @@ fn reloaddata() {
         }
     });
 }
+
 #[launch]
 fn rocket() -> _ {
     console();
     reloaddata();
+    Instance::createfolder("minecraftdata".to_string(), false);
 
     rocket
         ::build()

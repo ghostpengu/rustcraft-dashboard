@@ -1,5 +1,6 @@
 use rocket::serde::Serialize;
-
+use crate::instance;
+use instance::*;
 use rusqlite::{ Connection, Result };
 pub struct Database;
 #[derive(Serialize, Debug,Clone)]
@@ -20,8 +21,8 @@ fn fnv1a<T: AsRef<[u8]>>(data: T) -> u64 {
     hash
 }
 
-pub fn generate_token(pass: String) -> u64 {
-    let hash = fnv1a(pass);
+pub fn generate_token(usename:String,pass: String) -> u64 {
+    let hash = fnv1a(format!("{usename}{pass}"));
     return hash;
 }
 impl User {
@@ -42,7 +43,14 @@ impl User {
 }
 
 impl Database {
-    
+    pub fn deleteuser(user:String) -> Result<()> {
+        let conn = Connection::open("data.db").unwrap();
+        let usr = Database::dataread(&user);
+        let tok = usr.token;
+        Instance::deletefolder(format!("minecraftdata/{tok}"));
+        conn.execute("DELETE FROM users WHERE username = ?", &[&user])?;
+        Ok(())
+    }
     pub fn deletedata() -> Result<()> {
         let conn = Connection::open("data.db").unwrap();
 
@@ -99,6 +107,8 @@ impl Database {
         return users.unwrap_or(default);
     }
     pub fn writedata(new_user: &User) -> Result<usize>{
+        let tok = new_user.token.clone();
+        Instance::createfolder(format!("minecraftdata/{tok}"),true);
         let conn = Connection::open("data.db").unwrap();
         conn.execute(
             "INSERT INTO users (username, password, token) VALUES (?1, ?2, ?3)",
