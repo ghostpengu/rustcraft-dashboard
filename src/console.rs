@@ -20,7 +20,7 @@ enum Tokens {
 }
 
 fn parse_command(input: &str) -> Tokens {
-    let parts: Vec<&str> = input.trim().split_whitespace().collect();
+    let parts: Vec<&str> = input.split_whitespace().collect();
     match parts.len() {
         1 if parts[0].to_lowercase() == "exit" => Tokens::Exit,
         2 if parts[0].to_lowercase() == "deleteuser" => Tokens::DeleteUser(parts[1].to_string()),
