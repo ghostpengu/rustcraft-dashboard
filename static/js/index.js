@@ -14,11 +14,11 @@ function getCookie(name) {
     }
     return ""; // return empty string if cookie not found
   }
-
+const token = getCookie("token");
 document.addEventListener("DOMContentLoaded", function() {
   let usernametext = document.getElementById("username");
   usernametext.textContent = getCookie("username");
-  const token = getCookie("token");
+
   fetch("/read/" + token)
     .then((response) => {
       // Check if the request was successful (status code 200)
