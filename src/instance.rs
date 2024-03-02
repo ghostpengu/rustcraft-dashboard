@@ -3,6 +3,8 @@ use std::{ default, fs };
 use std::fs::File;
 use std::io;
 
+use rocket::response::content;
+
 pub struct Instance {}
 fn delete_dir_contents(dir_path: &String) -> io::Result<()> {
     for entry in fs::read_dir(dir_path)? {
@@ -24,6 +26,30 @@ fn delete_dir(dir_path: &String) -> io::Result<()> {
     Ok(())
 }
 impl Instance {
+    pub fn writefile(path:String,content:&String){
+        match fs::write(path, content) {
+            Ok(()) => {
+                // If successful, print a success message
+                println!("Text successfully written to file.");
+            }
+            Err(err) => {
+                // If an error occurs, print the error message
+                eprintln!("Error writing to file: {}", err);
+            }
+        }
+    }
+    pub fn readfile(path:String ) -> String{
+        match fs::read_to_string(path) {
+            Ok(contents) => {
+                // If successful, print the contents of the file
+                return contents;
+            }
+            Err(err) => {
+                // If an error occurs, print the error message
+                return format!("{err}");
+            }
+        }
+    }
     pub fn unzip(name: &String) {
         let file = File::open("minecraftdata/server.zip").unwrap();
         let mut archive = zip::ZipArchive::new(file).unwrap();

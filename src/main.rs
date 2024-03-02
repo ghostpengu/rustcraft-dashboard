@@ -11,6 +11,7 @@ use rocket::fs::FileServer;
 use core::ptr::addr_of;
 use std::env;
 
+use serde::{Deserialize};
 #[macro_use]
 extern crate rocket;
 use rocket_dyn_templates::{ context, Template };
@@ -26,6 +27,36 @@ fn load_user_data() {
     unsafe {
         USER_DATA = Some(Database::readdatabase());
     }
+}
+
+#[get("/getproperties/<token>")]
+fn get_properties(token:String) -> String{
+
+    let l = unsafe { &USER_DATA.as_ref().unwrap() };
+    if tokenckeck(l, &token){
+        let out =  Instance::readfile(format!("minecraftdata/{token}/server.properties"));
+        return out;
+    } 
+   
+    "failed login please".to_string()
+}
+#[derive(Debug, Deserialize)]
+struct Properties{
+    out:String,
+}
+
+#[post("/setproperties/<token>", data = "<content>")]
+fn set_properties(token:String,content:Json<Properties>)-> String{
+
+    let l = unsafe { &USER_DATA.as_ref().unwrap() };
+    if tokenckeck(l, &token){
+        let out = &content.out;
+      
+       Instance::writefile(format!("minecraftdata/{token}/server.properties"),out);
+        return "Wokrs".to_string();
+    } 
+   
+    return "Wokrs".to_string();
 }
 #[get("/person")]
 fn get_user() -> Json<User> {
@@ -65,6 +96,10 @@ fn tokenckeck(users: &[User], token: &String) -> bool {
 #[get("/")]
 fn homepage() -> Template {
     Template::render("index", context! {})
+}
+#[get("/properties")]
+fn properties() -> Template {
+    Template::render("properties", context! {})
 }
 
 #[get("/register")]
@@ -187,6 +222,9 @@ fn rocket() -> _ {
         .mount(
             "/",
             routes![
+                properties,
+                set_properties,
+                get_properties,
                 createinstance,
                 readinstance,
                 startinstance,

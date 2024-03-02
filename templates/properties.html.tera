@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
+  <link rel="stylesheet" href="/static/css/index.css">
+
+
+</head>
+<script src="/static/js/properties.js"></script>
+<div class="top-bar">
+  <div class="logo" id="username">Your Logo</div>
+  <ul class="nav-links">
+    <li><a class="button" href="/">Console</a></li>
+    <li><a class="button" href="">Server properties</a></li>
+    <li><a class="button" href="register">Register/Login</a></li>
+
+  </ul>
+</div>
+
+<body>
+  
+  <div class="main">
+    <textarea class="editor" id="output" placeholder="Type here" style="height: 653px; width: 879px;"></textarea>
+    <button class="button" onclick="setproperties()">Save</button>
+
+    
+   
+    </div>
+
+  </div>
+
+  
+</body>
+
+
+</html>

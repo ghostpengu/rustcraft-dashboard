@@ -37,7 +37,7 @@ fn parse_command(input: &str) -> Tokens {
 pub fn console() {
     thread::spawn(move || {
         let mut rl = DefaultEditor::new().unwrap();
-        
+
         if rl.load_history("history.txt").is_err() {
             println!("No previous history.");
         }
@@ -53,7 +53,7 @@ pub fn console() {
                             let user = User {
                                 username: user,
                                 password: pass,
-                                token: generate_token(usernameclone,passclone).to_string(),
+                                token: generate_token(usernameclone, passclone).to_string(),
                             };
 
                             match Database::writedata(&user) {
@@ -101,7 +101,6 @@ pub fn console() {
                 Err(ReadlineError::Interrupted) => {
                     println!("Exiting....");
                     exit(0);
-                 
                 }
                 Err(ReadlineError::Eof) => {
                     println!("CTRL-D");

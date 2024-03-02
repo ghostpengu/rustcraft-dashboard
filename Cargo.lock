@@ -1374,6 +1374,7 @@ dependencies = [
  "rusqlite",
  "rustyline",
  "serde",
+ "serde_json",
  "zip",
  "zip-extensions",
 ]
