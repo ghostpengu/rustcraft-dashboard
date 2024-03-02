@@ -6,7 +6,7 @@ function setproperties() {
   
     if (editor) {
       let serverprop = "";
-      console.log("Element found:", editor);
+     
       fetch('/setproperties/'+token, {
         method: 'POST',
         headers: {
@@ -15,12 +15,7 @@ function setproperties() {
         body: JSON.stringify(data),
       })
         .then(response => response.json())
-        .then(data => {
-          console.log('Success:', data);
-        })
-        .catch((error) => {
-          console.error('Error:', error);
-        });
+       
     
     }
   }
@@ -43,7 +38,7 @@ function setproperties() {
   
     if (editor) {
       let serverprop = "";
-      console.log("Element found:", editor);
+      
       fetch("/getproperties/" + token)
         .then((response) => {
           if (!response.ok) {
@@ -54,11 +49,9 @@ function setproperties() {
         .then((data) => {
          editor.value = data;
         
-          console.log(data);
+    
         })
-        .catch((error) => {
-          console.error("Error:", error);
-        });
+      
   
       
     }

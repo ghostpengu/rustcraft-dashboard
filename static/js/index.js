@@ -1,62 +1,4 @@
 
-function showComponent(toshow, from) {
-  const current = document.getElementById(from);
-  const comptoshow = document.getElementById(toshow);
-  current.style.visibility = "hidden";
-  comptoshow.style.visibility = "visible";
-}
-
-function setproperties() {
-  const editor = document.querySelector(".editor");
-  const data = {
-    out: editor.value
-  };
-
-  if (editor) {
-    let serverprop = "";
-    console.log("Element found:", editor);
-    fetch('/setproperties/'+token, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    })
-      .then(response => response.json())
-      .then(data => {
-        console.log('Success:', data);
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-      });
-    editor.value = serverprop;
-  }
-}
-
-function loadproperties() {
-  const editor = document.querySelector(".editor");
-
-  if (editor) {
-    let serverprop = "";
-    console.log("Element found:", editor);
-    fetch("/getproperties/" + token)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return response.text();
-      })
-      .then((data) => {
-        serverprop = data;
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
-
-    editor.value = serverprop;
-  }
-
-}
 
 
 function getCookie(name) {
@@ -76,7 +18,7 @@ function getCookie(name) {
 const token = getCookie("token");
 document.addEventListener("DOMContentLoaded", function () {
 
-  loadproperties();
+
   let usernametext = document.getElementById("username");
   usernametext.textContent = getCookie("username");
 
