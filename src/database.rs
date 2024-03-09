@@ -8,6 +8,7 @@ pub struct User {
     pub username: String,
     pub password: String,
     pub token: String,
+    pub cores:String
 }
 fn fnv1a<T: AsRef<[u8]>>(data: T) -> u64 {
     const FNV_OFFSET_BASIS: u64 = 0xcbf29ce484222325;
@@ -26,11 +27,12 @@ pub fn generate_token(usename:String,pass: String) -> u64 {
     return hash;
 }
 impl User {
-    pub fn new(username: &str, password: &str, token: &str) -> Self {
+    pub fn new(username: &str, password: &str, token: &str,cores:&str) -> Self {
         User {
             username: String::from(username),
             password: String::from(password),
             token: String::from(token),
+            cores:String::from(cores)
         }
     }
 
@@ -62,6 +64,7 @@ impl Database {
             username: "error reading database".to_string(),
             password: "error reading database".to_string(),
             token: "error reading database".to_string(),
+            cores:"error reading database".to_string()
         };
         let conn = Connection::open("data.db").unwrap();
         let mut dat = conn.prepare("SELECT * FROM users").unwrap();
@@ -71,6 +74,7 @@ impl Database {
                     username: row.get(0).unwrap(),
                     password: row.get(1).unwrap(),
                     token: row.get(2).unwrap(),
+                    cores: row.get(3).unwrap()
                 })
             })
             .unwrap();
@@ -93,6 +97,7 @@ impl Database {
                     username: row.get(0).unwrap(),
                     password: row.get(1).unwrap(),
                     token: row.get(2).unwrap(),
+                    cores: row.get(3).unwrap()
                 })
             })
             .unwrap();
@@ -102,6 +107,7 @@ impl Database {
             username: "error reading database".to_string(),
             password: "error reading database".to_string(),
             token: "error reading database".to_string(),
+            cores:"error reading database".to_string()
         }];
 
         return users.unwrap_or(default);
@@ -111,8 +117,8 @@ impl Database {
         Instance::createfolder(format!("minecraftdata/{tok}"),true);
         let conn = Connection::open("data.db").unwrap();
         conn.execute(
-            "INSERT INTO users (username, password, token) VALUES (?1, ?2, ?3)",
-            rusqlite::params![new_user.username, new_user.password, new_user.token]
+            "INSERT INTO users (username, password, token, cores) VALUES (?1, ?2, ?3, ?4)",
+            rusqlite::params![new_user.username, new_user.password, new_user.token,new_user.cores]
         )
 
     }

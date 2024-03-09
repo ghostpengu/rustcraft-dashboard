@@ -10,13 +10,16 @@ use rocket::serde::json::Json;
 use rocket::fs::FileServer;
 use core::ptr::addr_of;
 use std::env;
-
-use serde::{Deserialize};
+extern crate num_cpus;
+use serde::{ Deserialize };
+use std::collections::HashMap;
 #[macro_use]
 extern crate rocket;
 use rocket_dyn_templates::{ context, Template };
 
 static mut USER_DATA: Option<Vec<database::User>> = None;
+
+
 #[derive(Serialize, Debug)]
 struct Client {
     username: String,
@@ -30,32 +33,30 @@ fn load_user_data() {
 }
 
 #[get("/getproperties/<token>")]
-fn get_properties(token:String) -> String{
-
+fn get_properties(token: String) -> String {
     let l = unsafe { &USER_DATA.as_ref().unwrap() };
-    if tokenckeck(l, &token){
-        let out =  Instance::readfile(format!("minecraftdata/{token}/server.properties"));
+    if tokenckeck(l, &token) {
+        let out = Instance::readfile(format!("minecraftdata/{token}/server.properties"));
         return out;
-    } 
-   
+    }
+
     "failed login please".to_string()
 }
 #[derive(Debug, Deserialize)]
-struct Properties{
-    out:String,
+struct Properties {
+    out: String,
 }
 
 #[post("/setproperties/<token>", data = "<content>")]
-fn set_properties(token:String,content:Json<Properties>)-> String{
-
+fn set_properties(token: String, content: Json<Properties>) -> String {
     let l = unsafe { &USER_DATA.as_ref().unwrap() };
-    if tokenckeck(l, &token){
+    if tokenckeck(l, &token) {
         let out = &content.out;
-      
-       Instance::writefile(format!("minecraftdata/{token}/server.properties"),out);
+
+        Instance::writefile(format!("minecraftdata/{token}/server.properties"), out);
         return "Wokrs".to_string();
-    } 
-   
+    }
+
     return "Wokrs".to_string();
 }
 #[get("/person")]
@@ -64,6 +65,7 @@ fn get_user() -> Json<User> {
         username: "error reading database".to_string(),
         password: "error reading database".to_string(),
         token: "error reading database".to_string(),
+        cores:"error reading database".to_string()
     };
     Json(person)
 }
@@ -82,6 +84,7 @@ fn tokenckeck(users: &[User], token: &String) -> bool {
         username: String::from("unknow"),
         password: String::from("f"),
         token: String::from("F"),
+        cores:String::from("0,1")
     };
 
     for user in users {
@@ -92,7 +95,23 @@ fn tokenckeck(users: &[User], token: &String) -> bool {
 
     return false;
 }
+fn getuser(users: &[User], token: &String) -> User {
+    let _i = User {
+        username: String::from("unknow"),
+        password: String::from("f"),
+        token: String::from("F"),
+        cores:String::from("0,1")
+    };
 
+    for user in users {
+        if user.matchtoken(token) {
+            let i = user.clone();
+            return i;
+        }
+    }
+
+    return _i;
+}
 #[get("/")]
 fn homepage() -> Template {
     Template::render("index", context! {})
@@ -126,6 +145,7 @@ fn createuser(user: String, pass: String) -> Json<Client> {
         username: user,
         password: pass,
         token: generate_token(usernameclone, passclone).to_string(),
+        cores:String::from("0,1")
     };
     if !logincheck(l, &u.username, &u.password) {
         match Database::writedata(&u) {
@@ -153,12 +173,13 @@ fn createinstance(token: String) -> &'static str {
         let x = path.display();
         println!("started instance");
         thread::sleep(Duration::from_millis(100));
-
+        let usr = getuser(l,&token);
+        let cores = usr.cores;
         Instance::send_command(format!("cd {x}/minecraftdata/{token}"), &token);
         thread::sleep(Duration::from_millis(100));
-        Instance::send_command(format!("chmod 777 start.sh"), &token);
+        Instance::send_command(format!("chmod 777 run.sh"), &token);
         thread::sleep(Duration::from_micros(500));
-        Instance::send_command("./start.sh".to_string(), &token);
+        Instance::send_command(format!("./run.sh {cores}"), &token);
         "Started!!!!"
     } else {
         // println!("No Dad?");
@@ -173,10 +194,12 @@ fn startinstance(token: String) -> String {
         //Instance::writedata(new_user);
         let path = env::current_dir().unwrap();
         let x = path.display();
-
+        let usr = getuser(l,&token);
+        let cores = usr.cores;
         Instance::send_command(format!("cd {x}/minecraftdata/{token}"), &token);
         thread::sleep(Duration::from_micros(100));
-        Instance::send_command("./start.sh".to_string(), &token);
+        Instance::send_command(format!("./run.sh {cores}"), &token);
+        //java -Xmx1024M -Xms1024M -jar server.jar nogui
     }
 
     let out = Instance::read_terminal(&token);
@@ -216,7 +239,6 @@ fn rocket() -> _ {
     console();
     reloaddata();
     Instance::createfolder("minecraftdata".to_string(), false);
-
     rocket
         ::build()
         .mount(

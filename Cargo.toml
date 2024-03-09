@@ -1,6 +1,6 @@
 [package]
 name = "minecraft-dashboard"
-version = "0.1.0"
+version = "0.1.0"           
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 rocket = { version = "0.5.0", features = ["secrets", "tls", "json"] }
 serde_json = "1.0"
+num_cpus = "1.16.0"
 rusqlite = { version = "0.31.0", features = ["bundled"] }
 serde = { version = "1.0", features = ["derive"] }
 rocket_contrib = "0.4.10"

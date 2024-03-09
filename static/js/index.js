@@ -1,5 +1,7 @@
 
-
+function redirect(url){
+  window.location.href = url;
+}
 
 function getCookie(name) {
   const cookieName = name + "="; // the name of the cookie followed by "="
@@ -18,6 +20,7 @@ function getCookie(name) {
 const token = getCookie("token");
 document.addEventListener("DOMContentLoaded", function () {
 
+  
 
   let usernametext = document.getElementById("username");
   usernametext.textContent = getCookie("username");

@@ -11,11 +11,20 @@
 </head>
 <script src="/static/js/properties.js"></script>
 <div class="top-bar">
-  <div class="logo" id="username">Your Logo</div>
-  <ul class="nav-links">
-    <li><a class="button" href="/">Console</a></li>
-    <li><a class="button" href="">Server properties</a></li>
-    <li><a class="button" href="register">Register/Login</a></li>
+
+  <ul class=" topbtn nav-links ">
+
+    <li><a class="leftbutton" href="register">Register/Login</a></li>
+
+  </ul>
+</div>
+<div class="side-bar">
+  
+  <ul class="nav-links nav-links-side">
+    <div class="logo" id="username">Your Logo</div>
+    <li><a class="leftbutton small" href="/"><img src="/static/icons/icons8-console-50.png" alt="">Console</a></li>
+    <li><a class="leftbutton small" href="properties"><img src="/static/icons/icons8-properties-script-50.png" alt="">Properties</a></li>
+    <li><a class="leftbutton small" href="settings"><img src="/static/icons/icons8-settings-50.png" alt="">Settings</a></li>
 
   </ul>
 </div>
@@ -23,7 +32,7 @@
 <body>
   
   <div class="main">
-    <textarea class="editor" id="output" placeholder="Type here" style="height: 653px; width: 879px;"></textarea>
+    <textarea spellcheck="false" class="editor" id="output" placeholder="Type here" style="height: 653px; width: 879px;"></textarea>
     <button class="button" onclick="setproperties()">Save</button>
 
     
@@ -34,6 +43,7 @@
 
   
 </body>
+
 
 
 </html>

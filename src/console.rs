@@ -9,7 +9,7 @@ use database::*;
 use std::process::Command;
 enum Tokens {
     Print(String),
-    CreateUser(String, String),
+    CreateUser(String, String,String),
     DeleteUser(String),
     Read(String),
     ReadAll,
@@ -28,8 +28,8 @@ fn parse_command(input: &str) -> Tokens {
         1 if parts[0].to_lowercase() == "delete" => Tokens::Delete,
         2 if parts[0].to_lowercase() == "read" => Tokens::Read(parts[1].to_string()),
         1.. if parts[0].to_lowercase() == "print" => Tokens::Print(parts[1..].join(" ")),
-        3 if parts[0].to_lowercase() == "createuser" =>
-            Tokens::CreateUser(parts[1].to_string(), parts[2].to_string()),
+        4 if parts[0].to_lowercase() == "createuser" =>
+            Tokens::CreateUser(parts[1].to_string(), parts[2].to_string(),parts[3].to_string()),
         1 if parts[0].to_lowercase() == "clear" => Tokens::Clear,
         _ => Tokens::Unknown,
     }
@@ -47,13 +47,14 @@ pub fn console() {
                 Ok(line) => {
                     rl.add_history_entry(line.as_str());
                     match parse_command(&line) {
-                        Tokens::CreateUser(user, pass) => {
+                        Tokens::CreateUser(user, pass,core) => {
                             let passclone = pass.clone();
                             let usernameclone = user.clone();
                             let user = User {
                                 username: user,
                                 password: pass,
                                 token: generate_token(usernameclone, passclone).to_string(),
+                                cores:core
                             };
 
                             match Database::writedata(&user) {

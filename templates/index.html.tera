@@ -11,17 +11,26 @@
 </head>
 <script src="/static/js/index.js"></script>
 <div class="top-bar">
-  <div class="logo" id="username">Your Logo</div>
-  <ul class="nav-links">
-    <li><a class="button" href="">Console</a></li>
-    <li><a class="button" href="properties">Server properties</a></li>
-    <li><a class="button" href="register">Register/Login</a></li>
+
+  <ul class=" topbtn nav-links ">
+
+    <li><a class="leftbutton" href="register">Register/Login</a></li>
+
+  </ul>
+</div>
+<div class="side-bar">
+  
+  <ul class="nav-links nav-links-side">
+    <div class="logo" id="username">Your Logo</div>
+    <li><a class="leftbutton small" href="/"><img src="/static/icons/icons8-console-50.png" alt="">Console</a></li>
+    <li><a class="leftbutton small" href="properties"><img src="/static/icons/icons8-properties-script-50.png" alt="">Properties</a></li>
+    <li><a class="leftbutton small" href="settings"><img src="/static/icons/icons8-settings-50.png" alt="">Settings</a></li>
 
   </ul>
 </div>
 
 <body>
-  
+   
   <div class="main">
     <div id="output"></div>
     <div id="buttons-container">
@@ -29,14 +38,16 @@
       <button class="button" id="start">Start</button>
       <button class="button" id="read">Read</button>
       <button class="button" id="exit">Exit</button>
-      <input id="command" type="text" />
-      <button id="sendc">Send</button>
+      <input class="button"  id="command" type="text" />
+      <button class="button" id="sendc">Send</button>
     </div>
 
   </div>
 
   
 </body>
+
+
 
 
 </html>

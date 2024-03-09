@@ -1,156 +1,249 @@
 body {
-    background-color: #242424;
-    font-family: Arial, sans-serif;
-  }
+  background-color: #242424;
+  font-family: Arial, sans-serif;
 
-  .main {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    margin: 0;
-    background-color: #242424;
-    font-family: Arial, sans-serif;
-  }
+}
 
-  #buttons-container {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    margin-bottom: 20px;
-  }
+.main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  margin: 0;
+  background-color: #242424;
+  font-family: Arial, sans-serif;
+}
 
-  .top-bar {
-    background-color: #333;
-    color: #fff;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 20px;
-    position: fixed;
-    /* Fixed position */
-    top: 0;
-    /* Stick it to the top */
-    left: 0;
-    /* Stick it to the left */
-    width: 100%;
-    /* Take full width */
-    z-index: 1000;
-    /* Ensure it's above other content */
-  }
+#buttons-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 20px;
+}
 
-  .logo {
-    font-size: 24px;
-  }
+.top-bar{
+  position: fixed;
+top: 0;
+left: 0;
+background-color: var(--topbarcolor);
+color: #fff;
+display: flex;
+justify-content: flex-end; /* Adjusted */
+align-items: center;
+padding: 10px 0;
+width: 100%;
+z-index: 1000;
 
-  .nav-links {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    text-align: center;
-    /* Center the text within the container */
-  }
+  height: 8%;
+}
 
-  .nav-links li {
-    display: inline-block;
-    /* Make list items inline-block to appear in a row */
-    margin: 0 100px;
-    /* Add margin to the list items for spacing */
-  }
+.topbtn{
+  margin-right: 50px;
+  padding-top: 25px;
+}
+.side-bar {
+  position: fixed;
+top: 0; /* Ensures it starts from the top */
+left: 0;
+background-color: var(--leftbarcolor);
+color: #fff;
+display: flex;
+flex-direction: column; /* To make height stretch along the left side */
+
+align-items: flex-start; /* Align items to the left */
+padding: 10px 0;
+height: 100%; /* Stretch along the left side */
+width: 20vh; /* Adjust width as needed */
+z-index: 1000;
 
 
 
-  .nav-links li a {
-    color: #fff;
-    text-decoration: none;
-    background-color: transparent;
-  }
+}
 
-  .nav-links li a:hover {
-    text-decoration: underline;
-  }
+.logo {
+  font-size: 30px;
+  padding: 0px 44px;
+  margin-bottom: 10px;
 
-  #command {
-    padding: 8px;
-    margin: 5px;
-    font-size: 14px;
-    background-color: #727272;
-    border: 1px solid #727272;
-    color: white;
-    border-radius: 5px;
-  }
+}
 
-  /* CSS */
-  .button {
-    background-color: rgba(0, 191, 45, 0.791);
-    appearance: none;
+.nav-links {
+  list-style-type: none;
 
-    border: 2px solid #1A1A1A;
-    border-radius: 15px;
-    box-sizing: border-box;
-    color: #000000;
-    cursor: pointer;
-    display: inline-block;
-    font-family: Roobert, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-    font-size: 16px;
-    font-weight: 600;
-    line-height: normal;
-    margin: 0;
-    min-height: 20px;
-    min-width: 0;
-    outline: none;
-    padding: 10px 24px;
-    text-align: center;
-    text-decoration: none;
-    transition: all 300ms cubic-bezier(.23, 1, 0.32, 1);
-    user-select: none;
-    -webkit-user-select: none;
-    touch-action: manipulation;
+  padding: 0;
+  text-align: center;
   
-    will-change: transform;
-  }
+  /* Center the text within the container */
+}
+.nav-links-side{
+  width: 100%;
+}
+.nav-links li {
+  display: block;
 
-  .button:disabled {
-    pointer-events: none;
-  }
+  box-sizing: border-box;
+  /* Make list items inline-block to appear in a row */
+  margin-bottom: 20px;
+  /* Add margin to the list items for spacing */
+}
 
-  .button:hover {
-    color: #fff;
-    background-color: #002d04;
-    box-shadow: rgba(0, 0, 0, 0.25) 0 8px 15px;
-    transform: translateY(-2px);
-  }
 
-  .button:active {
-    box-shadow: none;
-    transform: translateY(0);
-  }
 
-  #sendc {
-    padding: 10px;
-    font-size: 14px;
-    background-color: #3498db;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
+.nav-links li a {
+  color: #fff;
+  text-decoration: none;
+  background-color: transparent;
+}
 
-  #sendc:hover {
-    background-color: #2980b9;
-  }
+.nav-links li a:hover {
+  text-decoration: underline;
+}
 
-  #output {
-    padding: 20px;
-    background-color: #727272;
-    border: 1px solid #727272;
-    border-radius: 5px;
-    min-width: 600px;
-    color: white;
-  }
+#command {
+  padding: 8px;
+  margin: 5px;
+  font-size: 14px;
+  background-color: #727272;
+  border: 1px solid #727272;
+  color: white;
+  border-radius: 5px;
+}
 
-  #output {
-    white-space: pre;
-    font-family: monospace;
-  }
+.bottom-bar {
+
+  bottom: 0;
+  left: 0;
+  width: 100.2%;
+  background-color: #333;
+  padding: 20px 0;
+  margin-bottom: -20px;
+  text-align: center;
+
+}
+
+.bottom-bar a {
+  color: #fff;
+  text-decoration: none;
+  margin: 0 20px;
+}
+:root {
+  --fontsz: 16px; /* Default spacing */
+  --padd:10px;
+  --paddx:24px;
+  --topbarcolor:rgb(42, 42, 42);
+  --leftbarcolor:rgb(57, 57, 57);
+}
+.small {
+  --fontsz: 20px; /* Custom spacing */
+  --padd:16px;
+  --paddx:10px
+}
+.leftbutton img{
+  width: 25%;
+  margin-right: 20px;
+}
+.leftbutton{
+  background-color: rgba(0, 191, 45, 0.791);
+  appearance: none;
+  margin: 1%;
+  border: 2px solid #1A1A1A;
+  border-radius: 10px;
+  box-sizing: border-box;
+  color: #000000;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  font-family: Roobert, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-size: var(--fontsz);
+  font-weight: 600;
+  line-height: normal;
+
+  min-height: 20px;
+  min-width: 0;
+  outline: none;
+  padding: var(--padd) var(--paddx);
+  text-align: center;
+  text-decoration: none;
+  transition: all 300ms cubic-bezier(.23, 1, 0.32, 1);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+/* CSS */
+.button {
+  background-color: rgba(0, 191, 45, 0.791);
+  appearance: none;
+
+  border: 2px solid #1A1A1A;
+  border-radius: 15px;
+  box-sizing: border-box;
+  color: #000000;
+  cursor: pointer;
+  display: inline-block;
+  font-family: Roobert, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-size: var(--fontsz);
+  font-weight: 600;
+  line-height: normal;
+  margin: 0;
+  min-height: 20px;
+  min-width: 0;
+  outline: none;
+  padding: var(--padd) var(--paddx);
+  text-align: center;
+  text-decoration: none;
+  transition: all 300ms cubic-bezier(.23, 1, 0.32, 1);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+
+
+}
+
+.button:disabled,.leftbutton:disabled {
+  pointer-events: none;
+}
+
+.button:hover,.leftbutton:hover {
+  color: #fff;
+  background-color: #002d04;    
+  box-shadow: rgba(0, 0, 0, 0.25) 0 8px 15px;
+  transform: translateY(-2px);
+}
+
+.button:active,.leftbutton:active {
+  box-shadow: none;
+  transform: translateY(0);
+}
+
+#sendc {
+  padding: 10px;
+  font-size: 14px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#sendc:hover {
+  background-color: #2980b9;
+}
+
+#output {
+  padding: 20px;
+  background-color: #03575a;
+  box-sizing: border-box;
+  border: 2px solid #3e3e3e;
+  border-radius: 4px;
+  font-size: 16px;
+  resize: none;
+  min-width: 600px;
+  color: rgb(255, 255, 255);
+
+}
+
+#output {
+  white-space: pre;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
