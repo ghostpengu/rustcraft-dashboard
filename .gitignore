@@ -13,6 +13,8 @@ data.db
 
 # MSVC Windows builds of rustc generate these, which store debugging information
 *.pdb
+data.db
+
 =======
 /target
 >>>>>>> master
