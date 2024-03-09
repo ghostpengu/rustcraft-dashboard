@@ -1,8 +1,4 @@
 
-function redirect(url){
-  window.location.href = url;
-}
-
 function getCookie(name) {
   const cookieName = name + "="; // the name of the cookie followed by "="
   const decodedCookie = decodeURIComponent(document.cookie); // decode the cookie string
