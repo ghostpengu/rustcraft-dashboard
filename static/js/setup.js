@@ -10,7 +10,7 @@ function submit() {
         email:email.value,
         setup:"false",
     };
-    console.log(data);
+
     fetch('/user/setproperties/'+token, {
         method: 'POST',
         headers: {
@@ -20,7 +20,7 @@ function submit() {
       })
         .then(response => response.json())
 
-  fetchsetup();
+  fetchsetup(); 
 }
 function getCookie(name) {
     const cookieName = name + "="; // the name of the cookie followed by "="
@@ -50,7 +50,7 @@ function fetchsetup(){
   })
   .then((data) => {
     // This function will be executed when the request is successful
-    console.log("Data:", data);
+
 
     // Use the data as needed, for example, updating the DOM
     if(data === "false"){
