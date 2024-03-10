@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="/static/css/index.css">
+    <link rel="stylesheet" href="/static/css/setup.css">
+
+</head>
+
+
+<script src="/static/js/setup.js"></script>
+
+<body>
+
+    <div class="main">
+        <div class="inputwindow">
+            <p>Setup your account</p>
+            <div class="inputs">
+                <label class="space" for="">Email for updates <input id="email"type="email"></label>
+                <label class="space" for="">Type <select id="type">
+                        <option value="vannila">Vannila</option>
+                        <option value="papaper">Paper mc</option>
+    
+                    </select></label>
+    
+                <label class="space" for="">Version <select id="version">
+                        <option value="165">1.16.5</option>
+                        <option value="185">1.18.5</option>
+    
+                    </select></label>
+    
+                
+
+            </div>
+            <button class="button" id="exit"onclick="submit()">Finish</button>
+          
+        </div>
+
+
+
+    </div>
+
+    </div>
+
+
+</body>
+
+
+
+</html>

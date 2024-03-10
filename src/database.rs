@@ -1,8 +1,12 @@
 use rocket::serde::Serialize;
+use rocket::serde::Deserialize;
 use crate::instance;
 use instance::*;
 use rusqlite::{ Connection, Result };
+
+
 pub struct Database;
+
 #[derive(Serialize, Debug,Clone)]
 pub struct User {
     pub username: String,

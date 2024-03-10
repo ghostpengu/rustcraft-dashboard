@@ -5,20 +5,29 @@ mod instance;
 use instance::*;
 mod database;
 use rocket::serde::Serialize;
+use rocket::serde::Deserialize;
 use database::*;
 use rocket::serde::json::Json;
 use rocket::fs::FileServer;
 use core::ptr::addr_of;
 use std::env;
 extern crate num_cpus;
-use serde::{ Deserialize };
-use std::collections::HashMap;
+
+
 #[macro_use]
 extern crate rocket;
 use rocket_dyn_templates::{ context, Template };
 
 static mut USER_DATA: Option<Vec<database::User>> = None;
 
+#[derive(Debug, PartialEq, Deserialize, Serialize)]
+#[serde(crate = "rocket::serde")]
+struct UserSettings<'r> {
+    version: &'r str,
+    stype: &'r str,
+    email:&'r str,
+    setup:&'r str
+}
 
 #[derive(Serialize, Debug)]
 struct Client {
@@ -47,6 +56,28 @@ struct Properties {
     out: String,
 }
 
+
+#[post("/user/setproperties/<token>", data = "<content>")]
+fn set_usersetting(token: String, content: Json<UserSettings>) -> String {
+    let l = unsafe { &USER_DATA.as_ref().unwrap() };
+    if tokenckeck(l, &token) {
+        let user_settings = UserSettings {
+            version: &content.version,
+            stype: &content.stype,
+            email: &content.email,
+            setup: &content.setup,
+        };
+        let serialized = rocket::serde::json::to_string(&user_settings).unwrap();
+       Instance::writefile(format!("minecraftdata/{token}/user.json"), &serialized);
+        return "Wokrs".to_string();
+    }
+
+    return "Wokrs".to_string();
+}
+
+
+
+
 #[post("/setproperties/<token>", data = "<content>")]
 fn set_properties(token: String, content: Json<Properties>) -> String {
     let l = unsafe { &USER_DATA.as_ref().unwrap() };
@@ -69,7 +100,17 @@ fn get_user() -> Json<User> {
     };
     Json(person)
 }
-
+#[get("/user/setup/<token>")]
+fn get_setup(token: String)->String {
+    let l = unsafe { &USER_DATA.as_ref().unwrap() };
+    if tokenckeck(l, &token){
+        let jsonstr = Instance::readfile(format!("minecraftdata/{token}/user.json"));
+        let user: UserSettings = rocket::serde::json::from_str(&jsonstr).unwrap();
+        return user.setup.to_string();
+    } else {
+        "false".to_string()
+    }
+}
 fn logincheck(users: &[User], username: &String, pass: &String) -> bool {
     for user in users {
         if user.login(username, pass) {
@@ -115,6 +156,10 @@ fn getuser(users: &[User], token: &String) -> User {
 #[get("/")]
 fn homepage() -> Template {
     Template::render("index", context! {})
+}
+#[get("/setup")]
+fn setup() -> Template {
+    Template::render("setup", context! {})
 }
 #[get("/properties")]
 fn properties() -> Template {
@@ -244,6 +289,7 @@ fn rocket() -> _ {
         .mount(
             "/",
             routes![
+                set_usersetting,
                 properties,
                 set_properties,
                 get_properties,
@@ -255,7 +301,9 @@ fn rocket() -> _ {
                 sendcommand,
                 regipage,
                 createuser,
-                get_user
+                get_user,
+                setup,
+                get_setup
             ]
         )
         .mount("/static", FileServer::from("static"))
