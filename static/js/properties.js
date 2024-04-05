@@ -64,6 +64,28 @@ document.addEventListener("DOMContentLoaded", function () {
   loadproperties();
   let usernametext = document.getElementById("username");
   usernametext.textContent = getCookie("username");
+  fetch("/user/setup/" + token)
+  .then((response) => {
+    // Check if the request was successful (status code 200)
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    return response.text(); // Retrieve the raw text content
+  })
+  .then((data) => {
+    // This function will be executed when the request is successful
+
+
+    // Use the data as needed, for example, updating the DOM
+    if(data === "true"){
+      window.location.href = "/setup";
+    }
+   
+  })
+  .catch((error) => {
+    // This function will be executed if there is an error
+    console.error("Error:", error);
+  });
 
   
 });

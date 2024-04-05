@@ -14,7 +14,7 @@
 
   <ul class=" topbtn nav-links ">
 
-    <li><a class="leftbutton" href="register">Register/Login</a></li>
+    <li><a class="leftbutton" href="login">Register/Login</a></li>
 
   </ul>
 </div>

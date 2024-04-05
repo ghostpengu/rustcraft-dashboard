@@ -3,10 +3,8 @@ use rocket::serde::Deserialize;
 use crate::instance;
 use instance::*;
 use rusqlite::{ Connection, Result };
-
-
 pub struct Database;
-
+use sha256::digest;
 #[derive(Serialize, Debug,Clone)]
 pub struct User {
     pub username: String,
@@ -14,21 +12,18 @@ pub struct User {
     pub token: String,
     pub cores:String
 }
-fn fnv1a<T: AsRef<[u8]>>(data: T) -> u64 {
-    const FNV_OFFSET_BASIS: u64 = 0xcbf29ce484222325;
-    const FNV_PRIME: u64 = 0x100000001b3;
 
-    let mut hash = FNV_OFFSET_BASIS;
-    for byte in data.as_ref() {
-        hash ^= *byte as u64;
-        hash = hash.wrapping_mul(FNV_PRIME);
-    }
-    hash
-}
 
 pub fn generate_token(usename:String,pass: String) -> u64 {
-    let hash = fnv1a(format!("{usename}{pass}"));
-    return hash;
+    let hash = digest(format!("{usename}{pass}"));
+     // Take the first 8 bytes of the hash and convert them to u64
+     let hash_slice = &hash.as_bytes()[0..8];
+     let mut token: u64 = 0;
+     for &byte in hash_slice {
+         token <<= 8;
+         token |= byte as u64;
+     }
+    return token;
 }
 impl User {
     pub fn new(username: &str, password: &str, token: &str,cores:&str) -> Self {
@@ -124,6 +119,7 @@ impl Database {
             "INSERT INTO users (username, password, token, cores) VALUES (?1, ?2, ?3, ?4)",
             rusqlite::params![new_user.username, new_user.password, new_user.token,new_user.cores]
         )
+
 
     }
 }

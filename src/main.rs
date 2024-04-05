@@ -13,7 +13,6 @@ use core::ptr::addr_of;
 use std::env;
 extern crate num_cpus;
 
-
 #[macro_use]
 extern crate rocket;
 use rocket_dyn_templates::{ context, Template };
@@ -166,7 +165,7 @@ fn properties() -> Template {
     Template::render("properties", context! {})
 }
 
-#[get("/register")]
+#[get("/login")]
 fn regipage() -> Template {
     Template::render("regi", context! {})
 }
@@ -193,13 +192,20 @@ fn createuser(user: String, pass: String) -> Json<Client> {
         cores:String::from("0,1")
     };
     if !logincheck(l, &u.username, &u.password) {
+        /*
         match Database::writedata(&u) {
             Ok(suc) => println!("{suc}"),
             Err(err) => println!("{err}"),
         }
 
         reloaddata();
-    }
+        */
+        let client = Client {
+            username: "failed".to_string(),
+            token: u.token,
+        };
+        return Json(client);
+    }                                                   
 
     let client = Client {
         username: u.username,
@@ -261,7 +267,15 @@ fn readinstance(token: String) -> String {
         "Check if you are logined if yes click init to start server".to_string()
     }
 }
-
+#[get("/checklogin/<token>")]
+fn checklogin(token: String) -> String {
+    let l = unsafe { &USER_DATA.as_ref().unwrap() };
+    if tokenckeck(l, &token) {
+        return "true".to_string();
+    } else {
+        return "false".to_string();
+    }
+}
 #[get("/exit/<token>")]
 fn exitinstance(token: String) -> String {
     let out = Instance::read_terminal(&token);
@@ -269,12 +283,17 @@ fn exitinstance(token: String) -> String {
     Instance::destroy_instance(&token);
     out
 }
-fn reloaddata() {
+pub fn reloaddata() {
     thread::spawn(move || {
         load_user_data();
-        unsafe {
-            let l = addr_of!(USER_DATA);
-            println!("{:?}", l)
+    });
+}
+fn datarefresh(){
+    thread::spawn(move || {
+        loop {
+            // Wait for the next tick
+            thread::sleep(Duration::from_secs(10));
+            reloaddata();
         }
     });
 }
@@ -283,7 +302,9 @@ fn reloaddata() {
 fn rocket() -> _ {
     console();
     reloaddata();
+    datarefresh();
     Instance::createfolder("minecraftdata".to_string(), false);
+
     rocket
         ::build()
         .mount(
@@ -303,9 +324,27 @@ fn rocket() -> _ {
                 createuser,
                 get_user,
                 setup,
-                get_setup
+                get_setup,
+                checklogin
             ]
         )
         .mount("/static", FileServer::from("static"))
         .attach(Template::fairing())
+}
+#[cfg(test)]
+mod tests {
+
+    use sha256::digest;
+    #[test]
+    fn test_generate_token() {
+     
+        let expected_token: String = "aa33996d60e89311b4d1a920dae03c6d7fa3ae1956c52662e273aad4683e577f".to_string();
+        let token = digest("real");
+
+        // Print the generated token for debugging purposes
+        println!("Generated token: {}", token);
+
+        assert_eq!(token, expected_token);
+
+    }
 }

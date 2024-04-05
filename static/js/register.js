@@ -30,21 +30,26 @@ document.addEventListener("DOMContentLoaded", function() {
       })
       .then((data) => {
         // This function will be executed when the request is successful
+      
         const username = data.username;
         const token = data.token;
         // Store values in letiables or use them as needed
         console.log('Value of username:', username);
         console.log('Do not share :', token);
-  
+        if(username === "failed"){
+          window.alert("Failed to login incorect password");
+          return;
+        }
         // Use the data as needed, for example, updating the DOM
         setCookie("username", username, expirationDays);
         setCookie("token", token, expirationDays);
+        window.location.href = "/";
       })
       .catch((error) => {
         // This function will be executed if there is an error
         console.error("Error:", error);
       });
-    window.location.href = "/";
+      
   });
   
   function getCookie(name) {
