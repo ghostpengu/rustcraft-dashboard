@@ -3,7 +3,7 @@ use std::{ default, fs };
 use std::fs::File;
 use std::io;
 
-use rocket::response::content;
+
 
 pub struct Instance {}
 fn delete_dir_contents(dir_path: &String) -> io::Result<()> {

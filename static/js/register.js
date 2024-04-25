@@ -43,7 +43,7 @@ document.addEventListener("DOMContentLoaded", function() {
         // Use the data as needed, for example, updating the DOM
         setCookie("username", username, expirationDays);
         setCookie("token", token, expirationDays);
-        window.location.href = "/";
+        window.location.href = "/setup";
       })
       .catch((error) => {
         // This function will be executed if there is an error

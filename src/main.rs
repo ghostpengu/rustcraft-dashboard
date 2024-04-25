@@ -9,9 +9,11 @@ use rocket::serde::Deserialize;
 use database::*;
 use rocket::serde::json::Json;
 use rocket::fs::FileServer;
-use core::ptr::addr_of;
+
 use std::env;
 extern crate num_cpus;
+
+
 
 #[macro_use]
 extern crate rocket;
@@ -33,11 +35,16 @@ struct Client {
     username: String,
     token: String,
 }
+
 // Function to read user data into an array
 fn load_user_data() {
     unsafe {
         USER_DATA = Some(Database::readdatabase());
     }
+}
+#[catch(404)]
+fn not_found() ->  Template{
+    Template::render("404", context! {})
 }
 
 #[get("/getproperties/<token>")]
@@ -307,6 +314,7 @@ fn rocket() -> _ {
 
     rocket
         ::build()
+        .register("/",catchers![not_found])
         .mount(
             "/",
             routes![

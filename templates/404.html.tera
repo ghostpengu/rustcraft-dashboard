@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div class="boxh">
+        <a href="/">404 buddy it looks like you are lost.....</a>
+    </div>
+
+
+</body>
+
+<style>
+    body {
+        background-color: #242424;
+    }
+
+    a {
+        text-decoration: none;
+        color: inherit;
+        cursor: pointer;
+        outline: none;
+        background: linear-gradient(to right, rgb(0, 238, 255), rgb(0, 115, 255), rgb(106, 0, 255), rgb(0, 238, 255),rgb(0, 238, 255), rgb(0, 115, 255), rgb(106, 0, 255), rgb(0, 238, 255));
+    background-size: 1400% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: textAnimation 20s linear infinite;
+  }
+
+  @keyframes textAnimation {
+    0% {
+      background-position: 0% 50%;
+    }
+    100% {
+      background-position: 100% 50%;
+    }
+  }
+
+
+    .boxh {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+        padding: 20px;
+        font-size: 3.5rem;
+
+
+    }
+</style>
+
+</html>

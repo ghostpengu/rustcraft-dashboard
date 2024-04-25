@@ -6,6 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Register</title>
   <link rel="stylesheet" href="/static/css/register.css">
+  
+
 </head>
 
 <body>
@@ -15,7 +17,7 @@
     <p>LOGIN</p>
     <input id="username" type="text" placeholder="Username" />
     <input id="password" type="password" placeholder="Password" />
-    <button id="submit">submit</button>
+    <button class="button" id="submit">Login</button>
   </div>
 </body>
 

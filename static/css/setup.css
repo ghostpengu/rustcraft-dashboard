@@ -44,13 +44,13 @@ input {
     
     display: flex;
     flex-direction: column;
-    background-color: rgb(80, 80, 80);
+    background-color: #333;
    
-    padding: 4%;
+    padding: 3%;
     justify-content: center;
     align-items:center;
     border: 2px solid #1A1A1A;
-    border-radius: 15px;
+    border-radius: 4px;
     box-sizing: border-box;
 }
 

@@ -1,6 +1,7 @@
 body {
   background-color: #242424;
   font-family: Arial, sans-serif;
+  overflow: hidden;
 
 }
 
@@ -13,7 +14,19 @@ body {
   margin: 0;
   background-color: #242424;
   font-family: Arial, sans-serif;
+  animation: fadeIn 1s ease-in-out forwards;
+  opacity: 0; /* Initially transparent */
 }
+
+@keyframes fadeIn {
+  from {
+    opacity: 0; /* Fully transparent at the start */
+  }
+  to {
+    opacity: 1; /* Fully opaque at the end */
+  }
+}
+
 
 #buttons-container {
   display: flex;
@@ -203,8 +216,14 @@ z-index: 1000;
 .button:disabled,.leftbutton:disabled {
   pointer-events: none;
 }
-
-.button:hover,.leftbutton:hover {
+.leftbutton:hover{
+  color: #fff;
+  background-color: #252525;    
+  box-shadow: rgba(0, 0, 0, 0.555) 0 8px 15px;
+  transform: translateX(5px);
+  
+}
+.button:hover {
   color: #fff;
   background-color: #002d04;    
   box-shadow: rgba(0, 0, 0, 0.25) 0 8px 15px;
