@@ -1,5 +1,5 @@
 use std::process::Command;
-use std::{ default, fs };
+use std::fs;
 use std::fs::File;
 use std::io;
 
@@ -27,14 +27,16 @@ fn delete_dir(dir_path: &String) -> io::Result<()> {
 }
 impl Instance {
     pub fn writefile(path:String,content:&String){
-        match fs::write(path, content) {
+        let current_time = chrono::Local::now().to_rfc3339();
+        println!("[{current_time}] Writing to file: {path}");
+        println!("[{current_time}] Writing {content}");
+
+        match fs::write(&path, content) {
             Ok(()) => {
-                // If successful, print a success message
-                println!("Text successfully written to file.");
+                println!("[{current_time}] Text successfully written to file: {path}");
             }
             Err(err) => {
-                // If an error occurs, print the error message
-                eprintln!("Error writing to file: {}", err);
+                eprintln!("[{current_time}] Error writing to file {path}: {err}");
             }
         }
     }
@@ -50,10 +52,11 @@ impl Instance {
             }
         }
     }
-    pub fn unzip(name: &String) {
-        let file = File::open("minecraftdata/server.zip").unwrap();
+    pub fn unzip(name: &String,filename: &String) {
+        let file = File::open(format!("minecraftdata/{filename}.zip")).unwrap();
         let mut archive = zip::ZipArchive::new(file).unwrap();
         archive.extract(format!("{name}")).unwrap();
+        
     }
     pub fn deletefolder(name: String) {
         match delete_dir(&name.to_string()) {
@@ -61,9 +64,9 @@ impl Instance {
             Err(e) => println!("Error deleting folder: {:?}", e),
         }
     }
-    pub fn createfolder(name: String, createuser: bool) {
+    pub fn createfolder(name: String, createuser: bool,filename: &String) {
         if createuser {
-            Instance::unzip(&name);
+            Instance::unzip(&name,&filename);
         }
 
         match fs::create_dir_all(name) {

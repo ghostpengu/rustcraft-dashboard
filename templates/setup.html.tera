@@ -20,15 +20,12 @@
             <p>Setup your account</p>
             <div class="inputs">
                 <label class="space" for="">Email for updates <input id="email"type="email"></label>
-                <label class="space" for="">Type <select id="type">
-                        <option value="vannila">Vannila</option>
-                        <option value="papaper">Paper mc</option>
-    
-                    </select></label>
+                
     
                 <label class="space" for="">Version <select id="version">
-                        <option value="165">1.16.5</option>
-                        <option value="185">1.18.5</option>
+                        <option value="165v">1.16.5 vanila</option>
+                        <option value="165p">1.16.5 papermc</option>
+              
     
                     </select></label>
     

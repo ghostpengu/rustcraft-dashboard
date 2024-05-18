@@ -2,11 +2,11 @@ function submit() {
     const type = document.getElementById("type");
     const email = document.getElementById("email");
     const version = document.getElementById("version");
-    let typestr = type.value;
+    
     let versionstr = version.value;
     const data = {
         version: versionstr,
-        stype:typestr,
+        stype:versionstr,
         email:email.value,
         setup:"false",
     };
@@ -18,7 +18,7 @@ function submit() {
         },
         body: JSON.stringify(data),
       })
-        .then(response => response.json())
+        .then(response => response.text())
 
   fetchsetup(); 
 }

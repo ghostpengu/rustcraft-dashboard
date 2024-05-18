@@ -10,6 +10,7 @@ use database::*;
 use rocket::serde::json::Json;
 use rocket::fs::FileServer;
 
+
 use std::env;
 extern crate num_cpus;
 
@@ -74,7 +75,9 @@ fn set_usersetting(token: String, content: Json<UserSettings>) -> String {
             setup: &content.setup,
         };
         let serialized = rocket::serde::json::to_string(&user_settings).unwrap();
-       Instance::writefile(format!("minecraftdata/{token}/user.json"), &serialized);
+        println!("{}",serialized);
+        Instance::writefile(format!("minecraftdata/{token}/user.json"), &serialized);
+        Database::setupserver(&token).unwrap();
         return "Wokrs".to_string();
     }
 
@@ -176,6 +179,7 @@ fn properties() -> Template {
 fn regipage() -> Template {
     Template::render("regi", context! {})
 }
+
 
 #[get("/c/<cmd>/<token>")]
 fn sendcommand(cmd: String, token: String) {
@@ -305,12 +309,14 @@ fn datarefresh(){
     });
 }
 
+
+
 #[launch]
-fn rocket() -> _ {
+async fn rocket() -> _ {
     console();
     reloaddata();
     datarefresh();
-    Instance::createfolder("minecraftdata".to_string(), false);
+    Instance::createfolder("minecraftdata".to_string(), false,&"".to_string());
 
     rocket
         ::build()
@@ -333,7 +339,8 @@ fn rocket() -> _ {
                 get_user,
                 setup,
                 get_setup,
-                checklogin
+                checklogin,
+                
             ]
         )
         .mount("/static", FileServer::from("static"))

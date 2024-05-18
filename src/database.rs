@@ -3,6 +3,7 @@ use rocket::serde::Deserialize;
 use crate::instance;
 use instance::*;
 use rusqlite::{ Connection, Result };
+
 pub struct Database;
 use sha256::digest;
 #[derive(Serialize, Debug,Clone)]
@@ -42,7 +43,14 @@ impl User {
         if self.username == *username && self.password == *password { true } else { false }
     }
 }
-
+#[derive(Debug, PartialEq, Deserialize, Serialize)]
+#[serde(crate = "rocket::serde")]
+struct UserSettings<'r> {
+    version: &'r str,
+    stype: &'r str,
+    email:&'r str,
+    setup:&'r str
+}
 impl Database {
     pub fn deleteuser(user:String) -> Result<()> {
         let conn = Connection::open("data.db").unwrap();
@@ -112,14 +120,23 @@ impl Database {
         return users.unwrap_or(default);
     }
     pub fn writedata(new_user: &User) -> Result<usize>{
+      
+        
         let tok = new_user.token.clone();
-        Instance::createfolder(format!("minecraftdata/{tok}"),true);
         let conn = Connection::open("data.db").unwrap();
+        Instance::createfolder(format!("minecraftdata/{tok}"), true, &"user".to_string());
         conn.execute(
             "INSERT INTO users (username, password, token, cores) VALUES (?1, ?2, ?3, ?4)",
             rusqlite::params![new_user.username, new_user.password, new_user.token,new_user.cores]
         )
 
 
+    }
+    pub fn setupserver(token: &String) -> Result<()>{
+
+        let jsonstr = Instance::readfile(format!("minecraftdata/{token}/user.json"));
+        let user: UserSettings = rocket::serde::json::from_str(&jsonstr).unwrap();
+        Instance::createfolder(format!("minecraftdata/{token}"),true,&user.version.to_string());
+        Ok(())
     }
 }

@@ -1,6 +1,6 @@
-use std::io::{ self, Write };
+
 use rustyline::error::ReadlineError;
-use rustyline::{ DefaultEditor, Result };
+use rustyline::DefaultEditor;
 use std::process::exit;
 use std::thread;
 use crate::database;
@@ -58,7 +58,7 @@ pub fn console() {
                             };
 
                             match Database::writedata(&user) {
-                                Ok(suc) => println!("Created user {:?}", &user),
+                                Ok(_) => println!("Created user {:?}", &user),
                                 Err(err) => println!("{err}"),
                             }
                         }
