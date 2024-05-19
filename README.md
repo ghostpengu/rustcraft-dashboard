@@ -12,3 +12,4 @@ A powerful and intuitive dashboard for managing your Minecraft server, built wit
 ## 👀How to install👀
  - Download release extract it and run it
    
+#**Project is still in development!!**
