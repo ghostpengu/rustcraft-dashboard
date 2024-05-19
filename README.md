@@ -8,3 +8,7 @@ A powerful and intuitive dashboard for managing your Minecraft server, built wit
 - read user data using: **read test1**
 - read all users: **readall**
 - delete all users with: **delete**
+
+## 👀How to install👀
+ - Download release extract it and run it
+   
